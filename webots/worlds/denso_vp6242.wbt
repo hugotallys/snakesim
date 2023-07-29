@@ -1,0 +1,30 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/tables/protos/Table.proto"
+EXTERNPROTO "../protos/DensoVP6242.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.26367293072774217 -0.14864109487628557 0.9530909770401892 3.9310850430904583
+  position 1.1984136339345846 1.2031441908939882 2.1700710584849157
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  floorAppearance Parquetry {
+  }
+}
+Table {
+  rotation 0 0 1 -1.5708
+}
+DensoVP6242 {
+  translation 0 0 0.74
+}

@@ -1,0 +1,93 @@
+\documentclass[12pt,a4paper,oneside]{easysparc}
+%\documentclass[12pt,a4paper,twoside]{easysparc}
+
+\usepackage{amsmath,amsfonts,mathdots,amssymb}
+\usepackage{graphicx}
+\usepackage{lipsum}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% Pacotes adicionados % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+
+%% % % % % % %
+\onehalfspacing
+\begin{document}
+\sloppy
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\include{Identificacao}	% % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\capa
+\folhaDeRosto
+\folhaDeAprovacao
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% Opcionais % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\dedicatoria %opcional
+\agradecimentos %opcional
+\epigrafe %opcional
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% Obrigatórios  % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\resumo
+\abstract
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\listoffigures
+\cleardoublepage
+% % % % % % % % % % % % % % % % %
+\listoftables
+\cleardoublepage
+\simbolos
+\cleardoublepage
+\abreviaturas
+\cleardoublepage
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\renewcommand{\contentsname}{Sumário}
+\tableofcontents
+\cleardoublepage
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\pagenumbering{arabic}
+
+\pagestyle{myheadings}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% Incluir capítulos aqui  % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\input{Cap01/Capitulo1}
+\cleardoublepage
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\input{Cap02/Capitulo2}
+\cleardoublepage
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\input{Cap03/Capitulo3}
+\cleardoublepage
+%%% % % % % % % % % % % % % % % % % % % % % % % % % % %
+%%% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\markright{Bibliografia}
+\renewcommand\bibname{Bibliografia}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% Definir estilo bibliográfico  % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+%\bibliographystyle{alpha}
+\bibliographystyle{apalike}
+%\bibliographystyle{ieeetr}
+%%
+{
+	\addcontentsline{toc}{chapter}{Bibliografia}
+	\bibliography{Ref/SampleReferences}
+}
+\cleardoublepage
+%%% % % % % % % % % % % % % % % % % % % % % % % % % % %
+%%% % % % % % % % % % % % % % % % % % % % % % % % % % %
+\end{document}
