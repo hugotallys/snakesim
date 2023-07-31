@@ -12,7 +12,7 @@ if __name__ == "__main__":
     args = sys.argv[1:]
 
     if len(args) == 0:
-        raise ValueError("Please specify a mode: teach or plot")
+        raise ValueError("Please specify a mode: `teach` or `plot`")
 
     robot = DensoVP6242()
 
