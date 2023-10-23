@@ -20,6 +20,8 @@ if __name__ == "__main__":
 
     qc = denso.ikine_LM(Ts, q0=q0) # Levenberg-Marquardt (LM) algorithm
 
+    print(qc.q.shape)
+
     denso.plot(qc.q)
     rtb.xplot(t, denso.manipulability(qc.q), labels="manipulability")
     rtb.xplot(t, qc.q)

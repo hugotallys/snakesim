@@ -1,7 +1,95 @@
-\chapter{Desenvolvimento}\label{cap:desenvolvimento}
+\chapter{Theoretical background}\label{cap:background}
 
-\lipsum[21-30]
+\section{Direct kinematics problem}
 
-\section{Seção}
+Direct kinematics, often referred to as forward kinematics, is a fundamental concept in robotics, particularly when dealing with serial kinematic chains, which are commonly found in robotic arms. It's a crucial tool for understanding how a robot's end-effector (the tool or hand) moves relative to its base as the robot's joints are manipulated.
 
-\lipsum[31-40]
+At the core of direct kinematics lies the concept of the Special Euclidean Group in 3D space, denoted as SE(3). SE(3) combines translations and rotations in three-dimensional space, making it an essential mathematical framework for describing the position and orientation of objects, including robotic arms.
+
+In SE(3), any transformation is represented as a 4x4 homogeneous transformation matrix. This matrix encapsulates both the translation (x, y, z) and rotation (roll, pitch, yaw) components, providing a comprehensive description of an object's pose in 3D space. In the context of robotic arms, SE(3) is used to represent the relationship between the robot's base (often at its joint origin) and its end-effector.
+
+The direct kinematics problem in serial kinematic chains involves determining the pose (position and orientation) of the end-effector relative to the robot's base, given the joint angles or joint configurations. In other words, it answers the question: "Where is the end-effector located and oriented when the robot's joints are set to specific values?"
+
+To solve the direct kinematics problem, you typically use a series of homogeneous transformation matrices, one for each joint, to describe the transformations from one joint to the next along the chain. These matrices are then multiplied together to obtain the final transformation from the base to the end-effector.
+
+$$ T_e = T_1 \cdot T_2 \cdot \ldots \cdot T_n $$
+
+\subsection{Denavit Hartenberg parameters}
+
+The Denavit-Hartenberg (DH) convention is a widely used method for efficiently solving the direct kinematics problem for kinematic chains, particularly in robotics. It provides a systematic way to represent and describe the transformation between consecutive joints in a serial robot manipulator. This convention simplifies the process of calculating the end-effector's pose (position and orientation) given the joint angles or joint parameters.
+
+In the DH convention, each joint in the kinematic chain is characterized by four parameters:
+
+1. **Link Length (a\_i):** The distance along the common normal between the z\_i and z\_(i+1) axes, where i is the joint index.
+
+2. **Link Twist (alpha\_i):** The angle about the common normal between the z\_i and z\_(i+1) axes, measured from the old z\_i axis to the new z\_(i+1) axis.
+
+3. **Link Offset (d\_i):** The distance along the x\_i axis from the old x\_i to the new x\_(i+1) axis, measured along z\_(i+1).
+
+4. **Joint Angle (theta\_i):** The angle about the x\_i axis from the old x\_i to the new x\_(i+1) axis, measured from the old x\_i axis to the current x\_i axis.
+
+The transformation between consecutive joints, denoted as T\_i\_(i+1), can be expressed as a 4x4 homogeneous transformation matrix. The DH parameters are used to construct these transformation matrices, and they are combined to calculate the overall transformation from the base to the end-effector using matrix multiplication. The transformation equation in the DH convention is:
+
+$$ Ti_(i+1) = R_z(theta_i) * T_z(d_i) * T_x(a_i) * R_x(alpha_i) $$
+
+In this equation:
+
+- R\_z(theta\_i) represents the rotation matrix about the z-axis by the angle theta\_i.
+
+- T\_z(d\_i) represents the translation matrix along the z-axis by the distance d\_i.
+
+- T\_x(a\_i) represents the translation matrix along the x-axis by the distance a\_i.
+
+- R\_x(alpha\_i) represents the rotation matrix about the x-axis by the angle alpha\_i.
+
+By iteratively applying these transformations for each joint along the kinematic chain, you can efficiently compute the pose of the end-effector with respect to the base.
+
+While the DH convention is a popular and efficient approach, other methods like Elementary Transform Sequences (ETS) also exist for solving the direct kinematics problem. ETS is a more general framework that encompasses the DH convention and can handle non-standard robot geometries and kinematic structures. However, DH remains a preferred choice for many robots due to its simplicity and ease of implementation in practice.
+
+\section{3R planar manipulator}
+
+Focar depois da escrita do capítulo 2. Exemplificar depois de cada ideia introduzida com o 3r
+
+\section{Inverse kinematics problem}
+
+The inverse kinematics problem in robotics is a challenging task primarily due to its intrinsic property of having multiple solutions for the same desired end-effector pose. In this context, analytical solutions provide a closed-form mathematical expression that directly relates the desired end-effector pose to the joint angles. These solutions exist for specific robot geometries and kinematic structures with well-defined mathematics. They are highly desirable when available due to their computational efficiency and precision but are limited to specific robot configurations and may not apply to more complex or non-standard robots. Moreover, they may not account for multiple solutions when they do exist.
+
+$$ K^{-1}(\boldsymbol{X}) = \boldsymbol{q} $$
+
+Closed-form geometric solutions can also provide explicit, closed-form mathematical relationships between the desired end-effector pose and the joint angles, similar to analytical solutions. Like analytical solutions, they offer precise solutions. However, closed-form geometric solutions, when available, combine the benefits of analytical solutions with versatility, allowing them to be applied to various robot geometries. Nevertheless, they may not exist or may be challenging to derive for robots with complex or non-standard kinematics. Additionally, they may not account for multiple solutions inherent in the inverse kinematics problem.
+
+Iterative numerical methods are common approaches for solving the IK problem in robotics. These methods convert the problem into a minimization problem by defining an error metric that quantifies the difference between the desired end-effector pose and the current pose, which depends on the joint angles or parameters. Here's an overview of how these methods work:
+
+Iterative numerical IK methods start with an initial guess for the joint angles or parameters. This initial guess can be chosen arbitrarily or based on heuristics.
+
+The algorithm iteratively refines the joint angles or parameters to minimize the error metric. The goal is to adjust the joints in a way that reduces the difference between the current and desired end-effector poses.
+
+$$ \min_{\boldsymbol{q}} \left\| \boldsymbol{X}_d - \boldsymbol{X}(\boldsymbol{q}) \right\| $$
+
+Various numerical optimization techniques can be employed during the iteration process. Common methods include gradient descent, Levenberg-Marquardt, and CMA-ES (Covariance Matrix Adaptation Evolution Strategy).
+
+The iterations continue until a termination criterion is met. This criterion can include reaching a desired tolerance for the error metric or reaching a maximum number of iterations.
+
+Handling multiple solutions is a challenge in numerical IK. Some methods may find only one solution, typically the one closest to the initial guess. Strategies such as random initialization or exploring multiple starting points can be used to address this issue.
+
+Practical robotic systems often have joint limits and constraints, including collision avoidance. Numerical IK solvers must consider these constraints to ensure safe and valid joint angles.
+
+Singularities and divergence issues can occur during the optimization process. Numerical IK methods should be robust against these problems and capable of handling singular configurations where the robot's Jacobian matrix becomes singular.
+
+While iterative numerical methods are versatile and applicable to a wide range of robotic systems, they can be computationally intensive, especially for robots with high degrees of freedom or complex geometries. Efficient techniques are required to meet real-time constraints in robotic applications.
+
+\section{Differential kinematics}
+
+\subsection{The Geometric Jacobian}
+
+\subsection{Kinematic Singularities}
+
+\subsubsection{Manipulability Ellipsoids}
+
+\subsection{Inverse Differential Kinematics}
+
+\subsubsection{Redundant manipulators}
+
+\subsubsection{The Jacobian Pseudo-Inverse Algorithm}
+
+\subsubsection{Generating Null Space (Internal) Motion}
