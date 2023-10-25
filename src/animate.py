@@ -43,16 +43,26 @@ class PlanarRoboticArmAnimation:
     def J(self, q):
         return self.robot.jacob0(q, half="trans")[:2, :]
 
-    def q0dot(self, q, k0=1.0):
-        n = len(q)
-        values = []
-        for i in range(len(self.qlims)):
-            q_min, q_max = self.qlims[i][0], self.qlims[i][1]
-            q_mean = 0.5*(q_max + q_min)
-            values.append(
-                (q[i] - q_mean) / (q_max - q_min)**2
+    def q0dot(self, q, k0=1.0, objective="manipulability"):
+        if objective == "manipulability":
+            return k0 * np.array(
+                [0., 2*np.sin(q[1])*np.cos(q[1]), 2*np.sin(q[2])*np.cos(q[2])]
             )
-        return (-k0 / n) * (np.array(values)).reshape(n, 1)
+        elif objective == "joint_range":
+            n = len(q)
+            values = []
+            for i in range(len(self.qlims)):
+                q_min, q_max = self.qlims[i][0], self.qlims[i][1]
+                q_mean = 0.5*(q_max + q_min)
+                values.append(
+                    (q[i] - q_mean) / (q_max - q_min)**2
+                )
+            return (k0 / n) * (np.array(values)).reshape(n, 1)
+        else:
+            raise ValueError(
+                "Invalid objective. Must be either"
+                " 'manipulability' or 'joint_range'"
+            )
 
     @staticmethod
     def compute_angle(eigenvectors):
@@ -102,7 +112,10 @@ def main(gif_filename=None):
         # Calculate the lengths of the semi-axes
         axis_values[i, :] = np.sqrt(eigenvalues)
         JT = np.linalg.pinv(J)
-        q0dot = np.squeeze(arm_animation.q0dot(q_values[i - 1, :], 10))
+        q0dot = np.squeeze(arm_animation.q0dot(
+            q_values[i - 1, :], k0=0, objective="manipulability"))
+        # q0dot = np.squeeze(arm_animation.q0dot(
+        # q_values[i - 1, :], k0=-10, objective="joint_range"))
         qdot = JT @ dx + (np.eye(len(arm_lengths)) - JT @ J) @ q0dot
         qdot_values[i, :] = qdot
         q_values[i, :] = q_values[i - 1, :] + qdot
