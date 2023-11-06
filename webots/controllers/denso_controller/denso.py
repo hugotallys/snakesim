@@ -47,3 +47,17 @@ class DensoVP6242(DHRobot):  # pylint: disable=too-many-ancestors
                 (q[i] - q_mean) / (q_max - q_min)**2
             )
         return np.squeeze((-k0 / n) * (np.array(values)))
+
+    def joint_distance(self, q):
+        """
+        Computes the distance from mechanical joint limits.
+        """
+        n = len(q)
+        values = []
+        for i in range(len(self.qlims)):
+            q_min, q_max = self.qlims[i][0], self.qlims[i][1]
+            q_mean = 0.5*(q_max + q_min)
+            values.append(
+                ((q[i] - q_mean) / (q_max - q_min))**2
+            )
+        return (-1/(2*n)) * np.sum(values)

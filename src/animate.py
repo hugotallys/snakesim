@@ -57,12 +57,26 @@ class PlanarRoboticArmAnimation:
                 values.append(
                     (q[i] - q_mean) / (q_max - q_min)**2
                 )
-            return (k0 / n) * (np.array(values)).reshape(n, 1)
+            return (-k0 / n) * (np.array(values)).reshape(n, 1)
         else:
             raise ValueError(
                 "Invalid objective. Must be either"
                 " 'manipulability' or 'joint_range'"
             )
+
+    def manipulability(self, q):
+        jacobian = self.J(q)
+        return np.sqrt(np.linalg.det(jacobian @ jacobian.T))
+
+    @staticmethod
+    def gradient(f, x, h=0.01):
+        grad = np.zeros_like(x)
+        for i in range(len(x)):
+            xp, xm = x.copy(), x.copy()
+            xp[i] = xp[i] + h
+            xm[i] = xm[i] - h
+            grad[i] = (f(xp) - f(xm)) / (2 * h)
+        return grad
 
     @staticmethod
     def compute_angle(eigenvectors):
@@ -112,8 +126,10 @@ def main(gif_filename=None):
         # Calculate the lengths of the semi-axes
         axis_values[i, :] = np.sqrt(eigenvalues)
         JT = np.linalg.pinv(J)
-        q0dot = np.squeeze(arm_animation.q0dot(
-            q_values[i - 1, :], k0=0, objective="manipulability"))
+        # q0dot = np.squeeze(arm_animation.q0dot(
+        #     q_values[i - 1, :], k0=1, objective="manipulability"))
+        q0dot = 0.9*arm_animation.gradient(
+            arm_animation.manipulability, q_values[i - 1, :])
         # q0dot = np.squeeze(arm_animation.q0dot(
         # q_values[i - 1, :], k0=-10, objective="joint_range"))
         qdot = JT @ dx + (np.eye(len(arm_lengths)) - JT @ J) @ q0dot

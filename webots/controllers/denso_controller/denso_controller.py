@@ -33,16 +33,38 @@ class DensoRobot:
             joint.setPosition(q_i)
 
 
+def gradient(f, x, h=0.01):
+    grad = np.zeros_like(x)
+    for i in range(len(x)):
+        xp, xm = x.copy(), x.copy()
+        xp[i] = xp[i] + h
+        xm[i] = xm[i] - h
+        grad[i] = (f(xp) - f(xm)) / (2 * h)
+    return grad
+
+
+def manipulability(q, denso_robot):
+    J = denso_robot.denso.jacob0(q, half="trans")
+    return np.sqrt(np.linalg.det(J @ J.T))
+
+
 if __name__ == "__main__":
     denso_robot = DensoRobot()
 
     q0 = np.zeros(6)
 
+    q0 = np.ones(6) * np.deg2rad(100)
+
+    denso_robot.set_joint_position(q0)
+
+    for _ in range(100):
+        denso_robot.step()
+
     TE1 = denso_robot.denso.fkine(q0)
-    TE2 = TE1  # SE3.Trans(-0.3, -0.1, -0.3) @ TE1
+    TE2 = SE3.Trans(0, 0, 0) @ TE1
 
     dt = denso_robot.timestep / 1000
-    t = np.arange(0, 5, dt)
+    t = np.arange(0, 3, dt)
 
     Ts = ctraj(TE1, TE2, t)
 
@@ -73,33 +95,42 @@ if __name__ == "__main__":
 
         dx = (Ts[i].t - x) / dt
 
-        q0dot = 0.3 * np.array([0., 0, 0., 1., -1., 0.])
-        # q0dot = denso_robot.denso.q0dot(q0, k0=100)
+        # q0dot = 0.3 * np.array([0., 0, 0., 1., -1., 0.])
+        # q0dot = denso_robot.denso.q0dot(q0, k0=10)
+
+        k0 = 1.0
+        q0dot = k0 * gradient(lambda q: manipulability(q, denso_robot), q0)
 
         qdot = J_pinv @ dx + (np.eye(6) - J_pinv @ J) @ q0dot
+
+        print((np.eye(6) - J_pinv @ J) @ q0dot)
+
+        # print(qdot)
+
         qdot = qdot.reshape(6)
 
-        joint_velocities[i] = qdot
+        joint_velocities[i] = q0dot
 
         q0 = q0 + qdot * dt
 
         T = denso_robot.denso.fkine(q0)
 
         denso_robot.set_joint_position(q0)
+
+        man_values[i] = manipulability(q0, denso_robot)  #  denso_robot.denso.joint_distance(q0)  # 
+
         i = i + 1
         if i > len(t) - 1:
             break
 
-        man_values[i] = denso_robot.denso.manipulability(q0)
-
     # plot the manipulability
-
+    
     last_man = man_values[-1]
     plt.plot(t, man_values, linewidth=2)
     plt.xlabel("Time (s)")
     plt.ylabel("Manipulability")
     plt.title(f"Manipulability: {last_man:.4f}")
-    plt.ylim(0, np.max(man_values) + 0.25 * np.max(man_values))
+    # plt.ylim(0, np.max(man_values) + 0.25 * np.max(man_values))
     plt.show()
 
     # plot the position
