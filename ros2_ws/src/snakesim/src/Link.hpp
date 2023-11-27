@@ -29,6 +29,8 @@ public:
     void draw_circle(sf::RenderWindow& window);
     void update(float angle);
     void printPositions();
+    sf::Vector2f getEndPos();
+    float getAngle();
 };
 
 #endif

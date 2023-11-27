@@ -42,6 +42,7 @@ void Link::draw_rectangle(sf::RenderWindow& window) {
     link.setOrigin(0.0f, LINK_WIDTH / 2.0f);
     link.setPosition(this->iniPos);
     link.setRotation(rad2deg(this->angle));
+    link.setFillColor(sf::Color(160, 196, 50));
     window.draw(link);
 }
 
@@ -50,8 +51,7 @@ void Link::draw_circle(sf::RenderWindow& window) {
     sf::CircleShape joint(JOINT_RADIUS);
     joint.setOrigin(JOINT_RADIUS, JOINT_RADIUS);
     joint.setPosition(this->iniPos);
-    // sets color to red
-    joint.setFillColor(sf::Color(255, 0, 0));
+    joint.setFillColor(sf::Color(119, 146, 38));
     window.draw(joint);
 }
 
@@ -75,4 +75,12 @@ void Link::update(float angle) {
 void Link::printPositions() {
     std::cout << "iniPos: " << iniPos.x << ", " << iniPos.y << std::endl;
     std::cout << "endPos: " << endPos.x << ", " << endPos.y << std::endl;
+}
+
+sf::Vector2f Link::getEndPos() {
+    return this->endPos;
+}
+
+float Link::getAngle() {
+    return this->angle;
 }
