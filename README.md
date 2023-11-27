@@ -1,3 +1,13 @@
-# densoVP6242
-Robot arm Denso VP6242 control.
-![](webots/worlds/.denso_vp6242.jpg)
+# SnakeSim
+
+![SnakeSim](./snake-sim.png)
+
+# Build and Run
+
+```bash
+$ cd ros2_ws
+$ colcon build --pkg-select snakesim
+$ source install/setup.bash
+$ ros2 run snakesim snakesim_node
+```
+
