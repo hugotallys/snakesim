@@ -89,7 +89,7 @@ class PlanarRoboticArmAnimation:
 
 def main(gif_filename=None):
     # Define the arm lengths and configurations
-    arm_lengths = np.ones(3)  # Example arm lengths
+    arm_lengths = np.ones(10)  # Example arm lengths
     K = 100  # Number of configurations
     N = len(arm_lengths)  # Number of joints
 
@@ -112,7 +112,7 @@ def main(gif_filename=None):
     q_values[0, :] = aone * np.pi / 2
 
     TE1 = arm_animation.robot.fkine(q_values[0, :])
-    TE2 = SE3.Trans(-2, -3, 0) @ TE1
+    TE2 = SE3.Trans(-10, -10, 0) @ TE1
 
     Ts = ctraj(TE1, TE2, K)
 
@@ -126,12 +126,9 @@ def main(gif_filename=None):
         # Calculate the lengths of the semi-axes
         axis_values[i, :] = np.sqrt(eigenvalues)
         JT = np.linalg.pinv(J)
-        # q0dot = np.squeeze(arm_animation.q0dot(
-        #     q_values[i - 1, :], k0=1, objective="manipulability"))
-        q0dot = 0.9*arm_animation.gradient(
-            arm_animation.manipulability, q_values[i - 1, :])
-        # q0dot = np.squeeze(arm_animation.q0dot(
-        # q_values[i - 1, :], k0=-10, objective="joint_range"))
+        q0dot = np.squeeze(arm_animation.q0dot(
+             q_values[i - 1, :], k0=30, objective="joint_range"))
+        # q0dot = 0*arm_animation.gradient(arm_animation.manipulability, q_values[i - 1, :])
         qdot = JT @ dx + (np.eye(len(arm_lengths)) - JT @ J) @ q0dot
         qdot_values[i, :] = qdot
         q_values[i, :] = q_values[i - 1, :] + qdot
