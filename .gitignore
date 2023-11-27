@@ -163,3 +163,8 @@ cython_debug/
 
 # Webots controllers init file
 webots/controllers/*/*.ini
+
+# ROS2 build folders
+build/
+install/
+log/
