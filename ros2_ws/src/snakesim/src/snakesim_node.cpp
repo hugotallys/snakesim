@@ -3,20 +3,23 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 
+#define WINDOW_WIDTH 700
+#define WINDOW_HEIGHT 700
+
+#define ARM_LENGTH 100.0f
+
 // Main function
 int main() {
     // Create a window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SnakeSim");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SnakeSim");
     window.setFramerateLimit(60);
     
-    float initialAngle = deg2rad(45.0f);
-    float initialAngle2 = deg2rad(-45.0f);
-    float initialAngle3 = deg2rad(45.0f);
+    float q0[3] = {0.0f, 0.0f, 0.0f};
 
     // Creates a link
-    Link link(400.0f, 300.0f, 100.0f, deg2rad(initialAngle));
-    Link link2(&link, 100.0f, deg2rad(initialAngle2));
-    Link link3(&link2, 100.0f, deg2rad(initialAngle3));
+    Link link(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f, ARM_LENGTH, q0[0]);
+    Link link2(&link, ARM_LENGTH, q0[1]);
+    Link link3(&link2, ARM_LENGTH, q0[2]);
 
     // Creates snake head by reading a png sprite:
     sf::Texture texture;
@@ -71,13 +74,13 @@ int main() {
         window.draw(sprite);
 
         // Updates the links
-        initialAngle += deg2rad(.5f);
-        initialAngle2 += deg2rad(.5f);
-        initialAngle3 += deg2rad(.5f);
+        q0[0] += 0.01f;
+        q0[1] += 0.02f;
+        q0[2] += 0.03f;
 
-        link.update(initialAngle);
-        link2.update(initialAngle2);
-        link3.update(initialAngle3);
+        link.update(q0[0]);
+        link2.update(M_PI_2*cos(q0[1]));
+        link3.update(M_PI_2*sin(q0[2]));
 
         // Display the window
         window.display();
