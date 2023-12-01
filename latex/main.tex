@@ -8,53 +8,51 @@
 \usepackage{makecell}
 \usepackage{bm}
 \usepackage{svg}
+\usepackage{booktabs}
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % Pacotes adicionados % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-
 %% % % % % % %
-\onehalfspacing
+\onehalfspacing{}
 \begin{document}
 \sloppy
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \include{Identificacao}	% % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\capa
-\folhaDeRosto
-\folhaDeAprovacao
+\capa{}
+\folhaDeRosto{}
+\folhaDeAprovacao{}
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % Opcionais % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\dedicatoria %opcional
-\agradecimentos %opcional
-\epigrafe %opcional
-
-
+\dedicatoria{} % opcional
+\agradecimentos{} % opcional
+\epigrafe{} % opcional
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % Obrigatórios  % % % % % % % % % % % % % % % % % % % 
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\resumo
-\abstract
+\resumo{}
+\abstract{}
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \listoffigures
-\cleardoublepage
+\cleardoublepage{}
 % % % % % % % % % % % % % % % % %
 \listoftables
-\cleardoublepage
-\simbolos
-\cleardoublepage
-\abreviaturas
-\cleardoublepage
+\cleardoublepage{}
+\simbolos{}
+\cleardoublepage{}
+\abreviaturas{}
+\cleardoublepage{}
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \renewcommand{\contentsname}{Sumário}
 \tableofcontents
-\cleardoublepage
+\cleardoublepage{}
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \pagenumbering{arabic}
@@ -67,24 +65,23 @@
 % Incluir capítulos aqui  % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \input{Cap01/Capitulo1}
-\cleardoublepage
+\cleardoublepage{}
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \input{Cap02/Capitulo2}
-\cleardoublepage
+\cleardoublepage{}
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \input{Cap03/Capitulo3}
-\cleardoublepage
+\cleardoublepage{}
 %%% % % % % % % % % % % % % % % % % % % % % % % % % % %
 \input{Cap04/Capitulo4}
-\cleardoublepage
+\cleardoublepage{}
 %%% % % % % % % % % % % % % % % % % % % % % % % % % % %
 \input{Cap05/Capitulo5}
-\cleardoublepage
+\cleardoublepage{}
 %%% % % % % % % % % % % % % % % % % % % % % % % % % % %
 %%% % % % % % % % % % % % % % % % % % % % % % % % % % %
 \markright{Bibliografia}
 \renewcommand\bibname{Bibliografia}
-
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % Definir estilo bibliográfico  % % % % % % % % % % %
@@ -97,7 +94,7 @@
 	\addcontentsline{toc}{chapter}{Bibliografia}
 	\bibliography{Ref/SampleReferences}
 }
-\cleardoublepage
+\cleardoublepage{}
 %%% % % % % % % % % % % % % % % % % % % % % % % % % % %
 %%% % % % % % % % % % % % % % % % % % % % % % % % % % %
 \end{document}

@@ -61,9 +61,9 @@
 %------------------------------------------------------------------
 
 \def\capa{
-\pagenumbering{roman}
+	\pagenumbering{roman}
 	\thispagestyle{empty}
-	
+
 	\noindent
 	\begin{minipage}{1\textwidth}
 		\raggedleft \includegraphics[height=35mm]{Cap00/IC.jpg}
@@ -71,113 +71,113 @@
 
 	\vfill
 
-    \hspace{-1.5cm}\begin{minipage}{1\textwidth}
+	\hspace{-1.5cm}\begin{minipage}{1\textwidth}
 		\raggedright \large\textit{{
-		    \ifthenelse{\@docType=1}{Trabalho de Conclusão de Curso}{
-		    \ifthenelse{\@docType=2}{Proposta de Dissertação de Mestrado}{
-		    \ifthenelse{\@docType=3}{Dissertação de Mestrado}{
-		    \ifthenelse{\@docType=4}{Qualificação de Doutorado}{
-		    \ifthenelse{\@docType=4}{Tese de Doutorado}{
-		    E R R O R}}}}}}}
+					\ifthenelse{\@docType=1}{Trabalho de Conclusão de Curso}{
+						\ifthenelse{\@docType=2}{Proposta de Dissertação de Mestrado}{
+							\ifthenelse{\@docType=3}{Dissertação de Mestrado}{
+								\ifthenelse{\@docType=4}{Qualificação de Doutorado}{
+									\ifthenelse{\@docType=4}{Tese de Doutorado}{
+										E R R O R}}}}}}}
 	\end{minipage}
-	
+
 	\vspace{5mm}
-	
-    \hspace{-1.5cm}\scalebox{1.8}{\begin{minipage}{.5\textwidth}
-    \renewcommand{\baselinestretch}{0.8}\raggedright\Huge{\textbf\@docTitle}\\
-    \end{minipage}}
-    
-    \vspace{1cm}
 
-    \hspace{-1.0cm}\scalebox{1}{\begin{minipage}{1\textwidth}
-		\renewcommand{\baselinestretch}{1}\raggedright {\textbf{de \large\@author}}
-	\end{minipage}}
+	\hspace{-1.5cm}\scalebox{1.8}{\begin{minipage}{.5\textwidth}
+			\renewcommand{\baselinestretch}{0.8}\raggedright\Huge{\textbf\@docTitle}\\
+		\end{minipage}}
 
-    \vspace{1cm}
-
-    \hspace{-1.0cm}\scalebox{1}{\begin{minipage}{1\textwidth}
-		\renewcommand{\baselinestretch}{1}\raggedright {\textbf{orientado por}}\\
-		\large {\textbf{\@tituloOrientador~\@orientador}}
-		\myifnotempty{\@coorientador}{\\ \textbf{\@tituloCoorientador~\@coorientador}}
-	\end{minipage}}
-	
 	\vspace{1cm}
-	
+
+	\hspace{-1.0cm}\scalebox{1}{\begin{minipage}{1\textwidth}
+			\renewcommand{\baselinestretch}{1}\raggedright {\textbf{de \large\@author}}
+		\end{minipage}}
+
+	\vspace{1cm}
+
+	\hspace{-1.0cm}\scalebox{1}{\begin{minipage}{1\textwidth}
+			\renewcommand{\baselinestretch}{1}\raggedright {\textbf{orientado por}}\\
+			\large {\textbf{\@tituloOrientador~\@orientador}}
+			\myifnotempty{\@coorientador}{\\ \textbf{\@tituloCoorientador~\@coorientador}}
+		\end{minipage}}
+
+	\vspace{1cm}
+
 	\definecolor{icbackcolor}{RGB}{ 73, 87, 150}
 	\definecolor{icfrontcolor}{RGB}{203, 208, 227}
-\hfill\fcolorbox{icfrontcolor}{icfrontcolor}{\begin{minipage}[r][2.5cm]{0.6\textwidth}
-				\renewcommand{\baselinestretch}{1}\raggedleft\large\@university\\
-				\@department\\
-				\@setLocation\\
-				\@setDate~de~\@setMonth~de~\@setYear
-			\end{minipage}}\fcolorbox{icbackcolor}{icbackcolor}{\begin{minipage}[r][2.5cm]{8mm}   \hspace{8mm}\end{minipage}}\hspace{-2cm}
-	
+	\hfill\fcolorbox{icfrontcolor}{icfrontcolor}{\begin{minipage}[r][2.5cm]{0.6\textwidth}
+			\renewcommand{\baselinestretch}{1}\raggedleft\large\@university\\
+			\@department\\
+			\@setLocation\\
+			\@setDate~de~\@setMonth~de~\@setYear
+		\end{minipage}}\fcolorbox{icbackcolor}{icbackcolor}{\begin{minipage}[r][2.5cm]{8mm}   \hspace{8mm}\end{minipage}}\hspace{-2cm}
+
 	\thispagestyle{empty}
 	\clearpage{\thispagestyle{empty}\cleardoublepage}
-	
+
 }
 
 %------------------------------------------------------------------
 
-\renewcommand{\baselinestretch}{1.5} 
+\renewcommand{\baselinestretch}{1.5}
 \def\folhaDeRosto{%
 	\thispagestyle{empty}
-	
+
 	\begin{center}
-\thispagestyle{empty}
-{\MakeUppercase\@university}\\
-{\@department}
+		\thispagestyle{empty}
+		{\MakeUppercase\@university}\\
+		{\@department}
 
-\vfill	
+		\vfill
 
-{\textbf{\large\MakeUppercase\@docTitle}}
+		{\textbf{\large\MakeUppercase\@docTitle}}
 
-\vspace{2cm}
+		\vspace{2cm}
 
-\hspace{.45\textwidth}
-\begin{minipage}{.5\textwidth}
-	{\ifthenelse{\@docType=1}{Trabalho de Conclusão de Curso submetido}{
-	 \ifthenelse{\@docType=2}{Proposta de Dissertação de Mestrado submetida}{
-	 \ifthenelse{\@docType=3}{Dissertação de Mestrado submitida}{
-	 \ifthenelse{\@docType=4}{Qualificação de Doutorado submetida}{
-	 \ifthenelse{\@docType=4}{Tese de Doutorado submetida}{
-	 E R R O R}}}}}}
-	ao {\@department} da {\@university} como requisito parcial para a obtenção do grau de  {\ifthenelse{\@docType=1}{Engenheiro de Computação}{
-	 \ifthenelse{\@docType=2}{Mestre em Informática}{
-	 \ifthenelse{\@docType=3}{Mestre em Informática}{
-	 \ifthenelse{\@docType=4}{Doutor em Informática}{
-	 \ifthenelse{\@docType=4}{Doutor em Informática}{
-	 E R R O R}}}}}}.
-\end{minipage}%
+		\hspace{.45\textwidth}
+		\begin{minipage}{.5\textwidth}
+			{\ifthenelse{\@docType=1}{Trabalho de Conclusão de Curso submetido}{
+					\ifthenelse{\@docType=2}{Proposta de Dissertação de Mestrado submetida}{
+						\ifthenelse{\@docType=3}{Dissertação de Mestrado submitida}{
+							\ifthenelse{\@docType=4}{Qualificação de Doutorado submetida}{
+								\ifthenelse{\@docType=4}{Tese de Doutorado submetida}{
+									E R R O R}}}}}}
+			ao {\@department} da {\@university} como requisito parcial para a obtenção do grau de  {\ifthenelse{\@docType=1}{Engenheiro de Computação}{
+						\ifthenelse{\@docType=2}{Mestre em Informática}{
+							\ifthenelse{\@docType=3}{Mestre em Informática}{
+								\ifthenelse{\@docType=4}{Doutor em Informática}{
+									\ifthenelse{\@docType=4}{Doutor em Informática}{
+										E R R O R}}}}}}.
+		\end{minipage}%
 
-\vspace*{\fill}
+		\vspace*{\fill}
 
-{\large\@author}\vspace{1cm}
+		{\large\@author}\vspace{1cm}
 
-{\textit{\textbf{Orientador: \@tituloOrientador~\@orientador}}}
+		{\textit{\textbf{Orientador: \@tituloOrientador~\@orientador}}}
 
-\myifnotempty{\@coorientador}{\textit{\textbf{Coorientador: \@tituloCoorientador~\@coorientador}}}
+		\myifnotempty{\@coorientador}{\textit{\textbf{Coorientador: \@tituloCoorientador~\@coorientador}}}
 
-\vspace{1cm}
+		\vspace{1cm}
 
-\textbf{Banca Avaliadora:}
+		\textbf{Banca Avaliadora:}
 
-\vspace{5mm}
-\begin{tabular}{lr}
-\myifnotempty{\@memberA}{\@memberA&\@filiationA\\}
-\myifnotempty{\@memberB}{\@memberB&\@filiationB\\}
-\myifnotempty{\@memberC}{\@memberC&\@filiationC\\}
-\myifnotempty{\@memberD}{\@memberD&\@filiationD\\}
-\myifnotempty{\@memberE}{\@memberE&\@filiationE}
-\end{tabular}
-\vfill
+		\vspace{5mm}
+		\begin{tabular}{lr}
+			\myifnotempty{\@memberA}{\@memberA & \@filiationA\\}
+			\myifnotempty{\@memberB}{\@memberB & \@filiationB\\}
+			\myifnotempty{\@memberC}{\@memberC & \@filiationC\\}
+			\myifnotempty{\@memberD}{\@memberD & \@filiationD\\}
+			\myifnotempty{\@memberE}{\@memberE & \@filiationE}
+		\end{tabular}
+		\vfill
 
-{\large\@setLocation}
+		{\large\@setLocation}
 
-{\large \@setDate~de~\@setMonth~de~\@setYear }
+		{\large \@setDate~de~\@setMonth~de~\@setYear }
 
-\end{center}
-	
+	\end{center}
+
 	\thispagestyle{empty}
 	\clearpage{\thispagestyle{empty}\cleardoublepage}
 }
@@ -188,81 +188,81 @@
 	\thispagestyle{empty}
 
 	\begin{center}
-	{\MakeUppercase\@university}\\
-	{\@department}
-	
-	\vfill	
-	
-	{\bfseries\large\MakeUppercase\@docTitle}
-	
-	\vspace{1cm}
-	
-	\vspace{5mm}
-	
-	%\hspace{.45\textwidth}
-	\begin{minipage}{.8\textwidth}
-		{\ifthenelse{\@docType=1}{Trabalho de Conclusão de Curso submetido}{
-	 \ifthenelse{\@docType=2}{Proposta de Dissertação de Mestrado submetida}{
-	 \ifthenelse{\@docType=3}{Dissertação de Mestrado submitida}{
-	 \ifthenelse{\@docType=4}{Qualificação de Doutorado submetida}{
-	 \ifthenelse{\@docType=4}{Tese de Doutorado submetida}{
-	 E R R O R}}}}}}
-	ao {\@department} da {\@university} como requisito parcial para a obtenção do grau de  {\ifthenelse{\@docType=1}{Engenheiro de Computação}{
-	 \ifthenelse{\@docType=2}{Mestre em Informática}{
-	 \ifthenelse{\@docType=3}{Mestre em Informática}{
-	 \ifthenelse{\@docType=4}{Doutor em Informática}{
-	 \ifthenelse{\@docType=4}{Doutor em Informática}{
-	 E R R O R}}}}}}.
-	\end{minipage}%
-	\vspace*{\fill}
-	
-	
-	Aprovado em \@setDate~de~\@setMonth~de~\@setYear:
-	
-	\vspace{7mm}\vfill
+		{\MakeUppercase\@university}\\
+		{\@department}
 
-\myifnotempty{\@orientador}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@orientador,\\ \@tituloOrientador, Orientador
-	\end{tabular}\vspace{7mm}\vfill
-}
+		\vfill
 
-\myifnotempty{\@coorientador}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@coorientador,\\ \@tituloCoorientador, Coorientador
-	\end{tabular}\vspace{7mm}\vfill
-}
+		{\bfseries\large\MakeUppercase\@docTitle}
 
-\myifnotempty{\@memberA}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@memberA,\\\@filiationA
-	\end{tabular}\vspace{7mm}\vfill
-}
+		\vspace{1cm}
 
-\myifnotempty{\@memberB}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@memberB,\\\@filiationB
-	\end{tabular}\vspace{7mm}\vfill
-}
+		\vspace{5mm}
 
-\myifnotempty{\@memberC}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@memberC,\\\@filiationC
-	\end{tabular}\vspace{7mm}\vfill
-}
+		%\hspace{.45\textwidth}
+		\begin{minipage}{.8\textwidth}
+			{\ifthenelse{\@docType=1}{Trabalho de Conclusão de Curso submetido}{
+					\ifthenelse{\@docType=2}{Proposta de Dissertação de Mestrado submetida}{
+						\ifthenelse{\@docType=3}{Dissertação de Mestrado submitida}{
+							\ifthenelse{\@docType=4}{Qualificação de Doutorado submetida}{
+								\ifthenelse{\@docType=4}{Tese de Doutorado submetida}{
+									E R R O R}}}}}}
+			ao {\@department} da {\@university} como requisito parcial para a obtenção do grau de  {\ifthenelse{\@docType=1}{Engenheiro de Computação}{
+						\ifthenelse{\@docType=2}{Mestre em Informática}{
+							\ifthenelse{\@docType=3}{Mestre em Informática}{
+								\ifthenelse{\@docType=4}{Doutor em Informática}{
+									\ifthenelse{\@docType=4}{Doutor em Informática}{
+										E R R O R}}}}}}.
+		\end{minipage}%
+		\vspace*{\fill}
 
-\myifnotempty{\@memberD}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@memberD,\\\@filiationD
-	\end{tabular}\vspace{7mm}\vfill
-}
 
-\myifnotempty{\@memberE}{
-	\begin{tabular}{p{8cm}}
-		\hline \centering\@memberE,\\\@filiationE
-	\end{tabular}\vfill
-}
-\end{center}
+		Aprovado em \@setDate~de~\@setMonth~de~\@setYear:
+
+		\vspace{7mm}\vfill
+
+		\myifnotempty{\@orientador}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@orientador, \\ \@tituloOrientador, Orientador
+			\end{tabular}\vspace{7mm}\vfill
+		}
+
+		\myifnotempty{\@coorientador}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@coorientador, \\ \@tituloCoorientador, Coorientador
+			\end{tabular}\vspace{7mm}\vfill
+		}
+
+		\myifnotempty{\@memberA}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@memberA, \\\@filiationA
+			\end{tabular}\vspace{7mm}\vfill
+		}
+
+		\myifnotempty{\@memberB}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@memberB, \\\@filiationB
+			\end{tabular}\vspace{7mm}\vfill
+		}
+
+		\myifnotempty{\@memberC}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@memberC, \\\@filiationC
+			\end{tabular}\vspace{7mm}\vfill
+		}
+
+		\myifnotempty{\@memberD}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@memberD, \\\@filiationD
+			\end{tabular}\vspace{7mm}\vfill
+		}
+
+		\myifnotempty{\@memberE}{
+			\begin{tabular}{p{8cm}}
+				\hline \centering\@memberE, \\\@filiationE
+			\end{tabular}\vfill
+		}
+	\end{center}
 
 	\thispagestyle{empty}
 	\clearpage{\thispagestyle{empty}\cleardoublepage}
@@ -271,7 +271,7 @@
 %------------------------------------------------------------------
 
 \def\dedicatoria{%
-    \thispagestyle{empty}
+	\thispagestyle{empty}
 	\input{Cap00/Dedicatoria}
 	\thispagestyle{empty}
 	\clearpage{\thispagestyle{empty}\cleardoublepage}
@@ -280,7 +280,7 @@
 %------------------------------------------------------------------
 
 \def\agradecimentos{%
-    \thispagestyle{empty} 
+	\thispagestyle{empty}
 	\input{Cap00/Agradecimentos}
 	\thispagestyle{empty}
 	\clearpage{\thispagestyle{empty}\cleardoublepage}
@@ -289,7 +289,7 @@
 %------------------------------------------------------------------
 
 \def\epigrafe{%
-    \thispagestyle{empty} 
+	\thispagestyle{empty}
 	\input{Cap00/Epigrafe}
 	\thispagestyle{empty}
 	\clearpage{\thispagestyle{empty}\cleardoublepage}
