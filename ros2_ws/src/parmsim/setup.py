@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'parmsim_node = parmsim.parmsim_node:main',
+            'parmsim_animate = parmsim.parmsim_animate:main'
         ],
     },
 )

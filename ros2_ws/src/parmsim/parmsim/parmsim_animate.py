@@ -128,7 +128,8 @@ def main(gif_filename=None):
         JT = np.linalg.pinv(J)
         q0dot = np.squeeze(arm_animation.q0dot(
              q_values[i - 1, :], k0=30, objective="joint_range"))
-        # q0dot = 0*arm_animation.gradient(arm_animation.manipulability, q_values[i - 1, :])
+        # q0dot = 0*arm_animation.gradient(
+        # arm_animation.manipulability, q_values[i - 1, :])
         qdot = JT @ dx + (np.eye(len(arm_lengths)) - JT @ J) @ q0dot
         qdot_values[i, :] = qdot
         q_values[i, :] = q_values[i - 1, :] + qdot
@@ -189,5 +190,4 @@ def main(gif_filename=None):
 
 
 if __name__ == "__main__":
-    filename = None  # "robotic_arm_animation.gif"
-    main(gif_filename=filename)
+    main()
