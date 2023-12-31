@@ -1,10 +1,161 @@
 \chapter{Fundamentação teórica}\label{cap:background}
 
-\section{Representando poses no espaço}
+\section{Poses no espaço}
 
-\subsection{Transformações elementares}
+O estudo da cinemática na robótica envolve principalmente o estabelecimento de
+sistemas de coordenadas (em inglês, \emph{frames}) para representar posições e
+orientações de corpos rígidos, além da caracterização das transformações entre
+esses frames. Nesta seção, definiremos uma forma precisa para representar
+translações e rotações no espaço por meio de matrizes e vetores. Em seguida,
+apresentaremos as transformações homogêneas, que combinam as operações de
+rotação e translação em uma única multiplicação matricial, proporcionando uma
+maneira concisa de estabelecer a relação entre dois frames distintos.
+
+\subsection{Representado posições e orientações no espaço}
+
+Um sistema de coordenadas ou \emph{frame} é definido por um ponto e um conjunto
+de vetores ortonormais que formam uma base no espaço considerado (dois vetores
+no plano e três vetores no espaço tridimensional). No contexto da robótica é
+muito comum a especificação de uma tarefa com base em coordenadas cartesianas
+relativas a algum frame de referência como ilustrado na
+figura~\ref{fig:frames}. Podemos tomar o \emph{frame} \(o_0 x_0 y_0 z_0\) como
+referência e expressar qualquer ponto \(P\) do espaço através de um vetor com
+origem em \(o_0\) e extremidade em \(P\) de modo que escreveríamos:
+
+\begin{equation}
+    p^0 = v_0^0 = \begin{bmatrix}
+        1 \\
+        1 \\
+        1
+    \end{bmatrix}
+\end{equation}
+
+onde o expoente \(0\) indica que o vetor é expresso com coordenadas referentes
+ao \emph{frame} \(o_0 x_0 y_0 z_0\). Contudo, ainda observando a
+figura~\ref{fig:frames}, podemos expressar o mesmo ponto \(P\) com coordenadas
+referentes ao \emph{frame} \(o_1 x_1 y_1 z_1\) através do vetor \(v_1^1\) de
+modo que, teríamos por exemplo:
+
+\begin{equation}
+    p^1 = v_1^1 = \begin{bmatrix}
+        2    \\
+        -1.5 \\
+        3
+    \end{bmatrix}
+\end{equation}
+
+Além disso, poderíamos também calcular \(v_1^0\) e \(v_0^1\) de modo que as
+coordenadas do vetor dependem do sistema de referência utilizado.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/frames.pdf} % Adjust the width as needed
+    \caption{Dois sistemas de coordenadas, um ponto P e vetores que o representam.}\label{fig:frames}
+\end{figure}
+
+Para estabelecer a relação completa entre os dois \emph{frames} precisamos
+também considerar a orientação de um com relação ao outro. Podemos expressar
+relação de orientação entre os \emph{frames} \(\{0\}\) e \(\{1\}\) utilizando a
+matriz de mudança de base \(R_1^0\) dada por:
+
+\begin{equation}
+    R_1^0 = \begin{bmatrix}
+        x_1 \cdot x_0 & y_1 \cdot x_0 & z_1 \cdot x_0 \\
+        x_1 \cdot y_0 & y_1 \cdot y_0 & z_1 \cdot y_0 \\
+        x_1 \cdot z_0 & y_1 \cdot z_0 & z_1 \cdot z_0
+    \end{bmatrix}
+\end{equation}
+
+onde \((\cdot)\) denota o produto escalar entre dois vetores.
+
+A matriz \(R_1^0\) faz parte de um conjunto de matrizes denominado grupo
+especial ortogonal de ordem 3 (\(SO(3)\)) que possui algumas propriedades
+interessantes dentre elas a facilidade de se calcular sua inversa:
+
+\begin{equation}
+    {(R_1^0)}^{-1} = {(R_1^0)}^{\top} = R_0^1
+\end{equation}
+
+Se a relação entre os \emph{frames} é composta apenas por uma rotação de
+\(\theta\) radianos em torno de cada eixo ordenado, podemos calcular as
+seguintes matrizes de transformação elementares:
+
+\begin{equation}
+    R_x(\theta) = \begin{bmatrix}
+        1 & 0            & 0             \\
+        0 & \cos(\theta) & -\sin(\theta) \\
+        0 & \sin(\theta) & \cos(\theta)
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    R_y(\theta) = \begin{bmatrix}
+        \cos(\theta)  & 0 & \sin(\theta) \\
+        0             & 1 & 0            \\
+        -\sin(\theta) & 0 & \cos(\theta)
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    R_z(\theta) = \begin{bmatrix}
+        \cos(\theta) & -\sin(\theta) & 0 \\
+        \sin(\theta) & \cos(\theta)  & 0 \\
+        0            & 0             & 1
+    \end{bmatrix}
+\end{equation}
 
 \subsection{Transformações homogêneas}
+
+Um deslocamento rígido no espaço pode ser representado por uma translação pura
+seguida de uma rotação pura. De maneira mais precisa, podemos defini-lo como um
+par ordenado \((R, d)\) onde \(R \in SO(3)\) e \(d \in \mathbb{R}^3\). O grupo
+de todas as transformações rígidas no espaço tridimensional é denominado grupo
+especial euclidiano de ordem 3 (\(SE(3)\)) onde vemos claramente que \(SE(3) =
+\mathbb{R}^3 \times SO(3)\).
+
+Seja \(R_1^0\) a matriz de rotação que especifica a orientação do sistema de
+coordenadas \(\{1\}\) com relação ao sistema de coordenadas \(\{0\}\) e
+\(o_1^0\) o vetor de deslocamento une suas origens. Como visto ne seção
+anterior, se \(P\) é um ponto fixado ao sistema de coordenadas \(\{1\}\) com
+coordenadas locais dadas por \(p^1\) então, podemos expressar as coordenadas de
+\(P\) com relação ao sistema de coordenadas \(\{0\}\) usando o seguinte
+deslocamento rígido:
+
+\begin{equation}\label{eq:rigid-motion}
+    p^0 = R_1^0 p^1 + o_1^0
+\end{equation}
+
+A equação (\ref{eq:rigid-motion}) pode ser reescrita de maneira mais compacta
+utilizando-se a seguinte formulação matricial:
+
+\begin{equation}
+    \begin{bmatrix}
+        p^0 \\
+        1
+    \end{bmatrix} = \begin{bmatrix}
+        R_1^0 & o_1^0 \\
+        0     & 1
+    \end{bmatrix} \begin{bmatrix}
+        p^1 \\
+        1
+    \end{bmatrix} \ \ , R_1^0 \in SO(3) \ \ , o_1^0 \in \mathbb{R}^3
+\end{equation}
+
+onde vemos que os elementos de \(SE(3)\) são matrizes de dimensão \(4 \times
+4\) e os vetores \(p^i\) são representados em \emph{coordenadas homogêneas }com
+uma dimensão extra. A matriz \(T_1^0\) é denominada matriz de
+\emph{transformação homogênea} e utilizando o fato de que \(R_1^0\) é uma
+matriz ortogonal, podemos facilmente calcular sua inversa:
+
+\begin{equation}
+    {(T_1^0)}^{-1} = \begin{bmatrix}
+        R_1^0 & o_1^0 \\
+        0     & 1
+    \end{bmatrix}^{-1} = \begin{bmatrix}
+        {(R_1^0)}^{\top} & -{(R_1^0)}^{\top} o_1^0 \\
+        0                & 1
+    \end{bmatrix}
+\end{equation}
 
 \section{Cinemática Direta}
 
@@ -78,11 +229,12 @@ deslocamento linear:
 \end{equation}
 
 A análise cinemática é feita anexando ao elo $i$ da cadeia o sistema de
-coordenadas $o_i x_i y_i z_i$. O \emph{frame} $o_0 x_0 y_0 z_0$ associado à base do
-manipulador é denominado \emph{frame} da base, inercial ou do mundo. Se
+coordenadas $o_i x_i y_i z_i$. O \emph{frame} $o_0 x_0 y_0 z_0$ associado à
+base do manipulador é denominado \emph{frame} da base, inercial ou do mundo. Se
 $A_i(q_i)$ é a matriz de transformação homogênea que fornece a posição e
-orientação de $o_i x_i y_i z_i$ com relação a $o_{i-1} x_{i-1} y_{i-1} z_{i-1}$ então
-podemos dizer que a mesma é função unicamente da variável $q_i$ de modo que:
+orientação de $o_i x_i y_i z_i$ com relação a $o_{i-1} x_{i-1} y_{i-1} z_{i-1}$
+então podemos dizer que a mesma é função unicamente da variável $q_i$ de modo
+que:
 
 \begin{equation}
     A(q_i) = A_i = \begin{bmatrix}
@@ -100,9 +252,9 @@ Dessa forma, para $i < j$, a matriz $T_j^i$ dada por:
     \end{bmatrix}
 \end{equation}
 
-expressa a orientação $R^i_j$ e posição $o^i_j$ de $o_j x_j y_j z_j$ com relação a
-$o_i x_i y_i z_i$. Vale ressaltar que a matriz $R^i_j$ é calculada através da
-multiplicação matricial:
+expressa a orientação $R^i_j$ e posição $o^i_j$ de $o_j x_j y_j z_j$ com
+relação a $o_i x_i y_i z_i$. Vale ressaltar que a matriz $R^i_j$ é calculada
+através da multiplicação matricial:
 
 \begin{equation}
     R^i_j = R^i_{i+1} \cdots R^{j-1}_j
@@ -205,11 +357,11 @@ a definição de cada parâmetro de Denavit-Hartenberg.
     \centering
     \begin{tabular}{c c}
         \toprule
-        \textbf{Parâmetro} & \textbf{Definição}                                                                                     \\
+        \textbf{Parâmetro} & \textbf{Definição}                                                                                                 \\
         \midrule
         $\theta_i$         & \makecell[l]{O ângulo entre os eixos $\mathbf{x}_i$ e $\mathbf{x}_{i+1}$ em torno do eixo $\mathbf{z}_{i-1}$}      \\
         \midrule
-        $d_i$              & \makecell[l]{A distância da origem do sistema de coordenadas $\{i\}$                                   \\ até o eixo $\mathbf{x}_{i+1}$ ao longo do eixo $\mathbf{z}_i$} \\
+        $d_i$              & \makecell[l]{A distância da origem do sistema de coordenadas $\{i\}$                                               \\ até o eixo $\mathbf{x}_{i+1}$ ao longo do eixo $\mathbf{z}_i$} \\
         \midrule
         $a_i$              & \makecell[l]{A distância entre os eixos $\mathbf{z}_i$ e $\mathbf{z}_{i+1}$ ao longo do eixo $\mathbf{x}_{i+1}$;   \\ para eixos que se intersectam, é paralela a $\mathbf{z}_i \times \mathbf{z}_{i+1}$} \\
         \midrule
@@ -234,11 +386,11 @@ manipulador é dada por:
     \centering
     \begin{tabular}{c c c c c}
         \toprule
-        \textbf{Elo} & \(\theta\) & \(d\) & \(a\) & \(\alpha\) \\
+        \textbf{Elo} & \(\theta\)   & \(d\) & \(a\)   & \(\alpha\) \\
         \midrule
-        1            & \(\theta_1\) & 0       & \(a_1\) & 0            \\
-        2            & \(\theta_2\) & 0       & \(a_2\) & 0            \\
-        3            & \(\theta_3\) & 0       & \(a_3\) & 0            \\
+        1            & \(\theta_1\) & 0     & \(a_1\) & 0          \\
+        2            & \(\theta_2\) & 0     & \(a_2\) & 0          \\
+        3            & \(\theta_3\) & 0     & \(a_3\) & 0          \\
         \bottomrule
     \end{tabular}
     \caption{Parâmetros DH para o braço planar 3R da figura~\ref{fig:3r-planar-arm}.}\label{tab:dh-parameters-planar-arm}
@@ -248,11 +400,12 @@ Dados os valores fixos \(a_i\) que indicam o comprimento do elo \(i\), as
 únicas variáveis livres no cálculo da cinemática direta são os ângulos das
 juntas ($q_i = \theta_i$), desse modo, vamos denotar \(\theta_1 + \theta_2 =
 \theta_{12}\), \(\cos(\theta_1 + \theta_2) = c_{12}\) e assim por diante. Para
-\(i = 1, 2, 3\) as matrizes $A_i$ são calculadas com o auxílio da equação~\ref{eq:dh-matrix}:
+\(i = 1, 2, 3\) as matrizes $A_i$ são calculadas com o auxílio da
+equação~\ref{eq:dh-matrix}:
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\linewidth]{export.pdf} % Adjust the width as needed
+    \includegraphics[width=0.8\linewidth]{Images/3r-planar.pdf} % Adjust the width as needed
     \caption{Braço planar do tipo 3R.}\label{fig:3r-planar-arm}
 \end{figure}
 
@@ -290,25 +443,503 @@ Já para as matrizes \(T^0_i\), utilizamos a equação~\ref{eq:fkine}:
 \end{equation}
 
 As três primeiras entradas da última coluna da matriz \(T^0_3\) dão a posição
-\(\mathbf{\xi} = {\left[ \xi_x \ \xi_y \ \xi_z \right]}^{\top}\) do efetuador final em função
-da configuração do manipulador. Note que $\xi_z = 0$ quaisquer que sejam os
-ângulos das juntas pois, como esperado, o manipulador é planar. Além disso,
-analisando a componente de rotação, fica evidente que a orientação do efetuador
-final com relação ao frame da base é dada pela soma dos ângulos das juntas:
-$\psi = \theta_{123}$.
+\(\mathbf{P} = {\left[ x \ y \ z \right]}^{\top}\) do efetuador final em função
+da configuração do manipulador. Note que $z = 0$ quaisquer que sejam os ângulos
+das juntas pois, como esperado, o manipulador é planar. Além disso, analisando
+a componente de rotação, fica evidente que a orientação do efetuador final com
+relação ao frame da base é dada pela soma dos ângulos das juntas: $\psi =
+    \theta_{123}$.
 
-\section{Cinemática Inversa}
+\section{Cinemática Diferencial}
 
-\subsection{Cinemática Diferencial}
+Na seção anterior vimos como podemos estabelecer uma relação entre a
+configuração de um manipulador com $n$ juntas com a pose do efetuador final no
+espaço SE3. Nesta seção, iremos investigar de que forma se dá a relação de um
+vetor de velocidades no espaço das juntas com a velocidade do efetuador final
+no espaço de trabalho. Iremos ver que a matriz Jacobiana, atuando como uma
+generalização da derivada para o caso multidimensional, é responsável por
+estabelecer um mapeamento linear entre as velocidades e tem papel crucial na
+caracterização da qualidade do movimento de um manipulador através da análise
+das singularidades cinemáticas. Por fim, iremos analisar o problema da
+cinemática inversa diferencial, uma aplicação direta do mapeamento estabelecido
+pela matriz Jacobiana, proporcionando a geração eficiente de trajetórias
+cartesianas (retilíneas) no espaço de trabalho do manipulador.
 
-\subsection{Singularidades Cinemáticas}
+\subsection{A Jacobiana do Manipulador}
 
-\subsection{Resolved Rate Control}
+Dado um manipulador com $n$ juntas vamos considerar
+
+\begin{equation}
+    T_{n}^{0}(q) = \begin{bmatrix}
+        R_{n}^{0}(q) & o_{n}^{0}(q) \\
+        0            & 1
+    \end{bmatrix}
+\end{equation}
+
+a transformação homogênea que expressa a pose do efetuador final com relação ao
+\emph{frame} da base que, como já vimos, é função apenas da configuração \(q =
+\begin{bmatrix}
+    q_1 & \cdots & q_n
+\end{bmatrix}^\top\).
+
+Buscamos estabelecer relações da seguinte forma:
+
+\begin{align}
+    v_n^0 = J_v \dot{q} \\
+    \omega_n^0 = J_\omega \dot{q}
+\end{align}
+
+onde \(v_n^0\) e \(\omega_n^0\) expressam respectivamente as velocidades linear
+e angular do efetuador final e \(J_v\), \(J_\omega\) são matrizes de dimensão
+\(3 \times n\). De maneira mais compacta, podemos escrever
+
+\begin{equation}
+    \xi = J \dot{q}
+\end{equation}
+
+onde teremos:
+
+\begin{equation}
+    \xi = \begin{bmatrix}
+        v_n^0 \\
+        \omega_n^0
+    \end{bmatrix} \text{ e } J = \begin{bmatrix}
+        J_v \\
+        J_\omega
+    \end{bmatrix}
+\end{equation}
+
+O vetor \(\xi\) de dimensão \(6 \times 1\) é denominado de velocidade do corpo
+rígido (em inglês \emph{body velocity} ou \emph{twist}). Note também que a
+matriz \(J\), chamada \emph{jacobiana do manipulador} ou simplesmente
+jacobiana, é usualmente uma matriz de dimensão \(6 \times n\).
+
+O cálculo da jacobiana, pode ser feito de maneira simples e sistemática ao
+analisarmos as componentes angular e linear separadamente. No primeiro caso,
+sabemos que a velocidade angular do efetuador final pode ser obtida através da
+soma sucessiva das velocidades angulares de cada elo:
+
+\begin{equation}\label{eq:angular-velocity}
+    \omega_n^0 = \omega_{1}^0 + \omega_{2}^0 + \cdots + \omega_n^{0}
+\end{equation}
+
+Se a junta \(i\) é prismática não há rotação em torno do eixo \(z_{i-1}\) de
+modo que \(\omega_i^{i-1} = 0\). Caso contrário, se a junta \(i\) é de
+revolução a rotação dá se em torno do eixo $z_{i-1}$ com magnitude $\dot{q}_i$
+de modo que:
+
+\begin{equation}
+    \omega_i^{0} = \dot{q_i} z_{i-1}^{0}
+\end{equation}
+
+onde obviamente teremos \(z_{0}^{0} = k = \begin{bmatrix}
+    0 & 0 & 1
+\end{bmatrix}^\top\)
+
+A orientação do eixo \(z_{i}\) com relação ao \emph{frame} da base é dada por
+\(z_{i}^0 = R_{i}^0 k\), então substituindo na equação
+(\ref{eq:angular-velocity}) podemos escrever:
+
+\begin{equation}
+    \omega_n^0 = \rho_1 \dot{q_1} k + \rho_2 \dot{q_2} R_1^0 k + \cdots + \rho_n \dot{q_n} R_{n-1}^0 k
+\end{equation}
+
+onde \(\rho_i = 0\) se a junta \(i\) é prismática e \(\rho_i = 1\) caso
+contrário. Fica claro então que a metade inferior da jacobiana é dada por:
+
+\begin{equation}
+    J_\omega = \begin{bmatrix}
+        \rho_1 k & \rho_2 R_1^0 k & \cdots & \rho_n R_{n-1}^0 k
+    \end{bmatrix}
+\end{equation}
+
+A metade superior da jacobiana é obtida calculando-se o vetor \(\dot{o}_n^0\).
+Aplicando a regra da cadeia, temos:
+
+\begin{equation}\label{eq:linear-velocity}
+    \dot{o}_n^0 = \frac{\partial o_n^0}{\partial q_1} \dot{q_1} + \frac{\partial o_n^0}{\partial q_2} \dot{q_2} + \cdots + \frac{\partial o_n^0}{\partial q_n} \dot{q_n}
+\end{equation}
+
+onde fica claro que a i-ésima coluna de \(J_v\) é dada por:
+
+\begin{equation}
+    J_{v_i} = \frac{\partial o_n^0}{\partial q_i}
+\end{equation}
+
+Para obter a expressão de \(J_{v_i}\) vamos analisar novamente o caso de juntas
+prismáticas e de revolução separadamente. No caso de uma única junta
+prismática, então o efetuador final apresenta apenas translação ao longo do
+eixo \(z_{i-1}\) de modo que:
+
+\begin{equation}
+    \dot{o}_n^0 = \dot{q_i} R_{i-1}^0 \begin{bmatrix}
+        0 \\
+        0 \\
+        1
+    \end{bmatrix} = \dot{q_i} z_{i-1}^0
+\end{equation}
+
+Comparando com a (\ref{eq:angular-velocity}) vemos que:
+
+\begin{equation}
+    J_{v_i} = z_{i-1}^0
+\end{equation}
+
+Já para o caso de uma junta de revolução, a velocidade linear do efetuador
+final devido ao movimento do elo \(i\) é da forma \(\omega \times r\) dada pela
+sua componente tangencial ao círculo de centro no ponto \(o_{i-1}\) e
+extremidade no ponto \(o_n\) onde:
+
+\begin{align*}
+    \omega & = \dot{q_i} z_{i-1}^0 \\
+    r      & = o_n^0 - o_{i-1}^0
+\end{align*}
+
+onde finalmente chegamos à expressão:
+
+\begin{equation}
+    J_{v_i} = z_{i-1}^0 \times (o_n^0 - o_{i-1}^0)
+\end{equation}
+
+Resumindo as equações obtidas acima, podemos calcular a jacobiana de qualquer
+manipulador serial utilizando o seguinte procedimento:
+
+A parte superior da matriz jacobiana \(J_v\) será:
+
+\begin{equation}
+    J_v = \begin{bmatrix}
+        J_{v_1} & J_{v_2} & \cdots & J_{v_n}
+    \end{bmatrix}
+\end{equation}
+
+onde a i-ésima coluna \(J_{v_i}\) é dada por:
+
+\begin{equation}
+    J_{v_i} =
+    \begin{cases}
+        z_{i-1}^0 \times (o_n^0 - o_{i-1}^0) & \text{se a junta $i$ é de revolução} \\
+        z_{i-1}                              & \text{se a junta $i$ é prismática}   \\
+    \end{cases}
+\end{equation}
+
+Já a parte inferior da matriz jacobiana \(J_\omega\) será:
+
+\begin{equation}
+    J_\omega = \begin{bmatrix}
+        J_{\omega_1} & J_{\omega_2} & \cdots & J_{\omega_n}
+    \end{bmatrix}
+\end{equation}
+
+onde a i-ésima coluna \(J_{\omega_i}\) é dada por:
+
+\begin{equation}
+    J_{\omega_i} =
+    \begin{cases}
+        z_{i-1}^0 & \text{se a junta $i$ é de revolução} \\
+        0         & \text{se a junta $i$ é prismática}   \\
+    \end{cases}
+\end{equation}
+
+Note que o cálculo da jacobiana torna-se possível apenas com o conhecimento da
+função de cinemática direta \(T_n^0\) mostrando-se uma maneira simples e
+sistemática para calcular não so a velocidade do efetuador final mas também a
+velocidade de qualquer ponto da estrutura cinemática do manipulador.
+
+Como exemplo, considere o manipulador planar 3R introduzido na seção anterior.
+Com base no procedimento descrito acima, a jacobiana do manipulador é dada por:
+
+\begin{equation}
+    J(q) = \begin{bmatrix}
+        z_0^0 \times (o_3^0 - o_0^0) & z_1^0 \times (o_3^0 - o_1^0) & z_2^0 \times (o_3^0 - o_2^0) \\
+        z_0^0                        & z_1^0                        & z_2^0
+    \end{bmatrix}
+\end{equation}
+
+onde as termos envolvidos são:
+
+\begin{align*}
+    o_0^0 = \begin{bmatrix}
+                0 \\
+                0 \\
+                0
+            \end{bmatrix} \ \ o_1^0 = \begin{bmatrix}
+                                          a_1 c_1 \\
+                                          a_1 s_1 \\
+                                          0
+                                      \end{bmatrix} \ \ o_2^0 & = \begin{bmatrix}
+                                                                      a_1 c_1 + a_2 c_{12} \\
+                                                                      a_1 s_1 + a_2 s_{12} \\
+                                                                      0
+                                                                  \end{bmatrix} \ \ o_3^0 = \begin{bmatrix}
+                                                                                                a_1 c_1 + a_2 c_{12} + a_3 c_{123} \\
+                                                                                                a_1 s_1 + a_2 s_{12} + a_3 s_{123} \\
+                                                                                                0
+                                                                                            \end{bmatrix} \\
+    z_0^0                                     & = z_1^0 = z_2^0 = \begin{bmatrix}
+                                                                      0 \\
+                                                                      0 \\
+                                                                      1
+                                                                  \end{bmatrix}
+\end{align*}
+
+Desenvolvendo as expressões acima, obtemos:
+
+\begin{equation}
+    J(q) = \begin{bmatrix}
+        -a_1 s_1 - a_2 s_{12} - a_3 s_{123} & -a_2 s_{12} - a_3 s_{123} & -a_3 s_{123} \\
+        a_1 c_1 + a_2 c_{12} + a_3 c_{123}  & a_2 c_{12} + a_3 c_{123}  & a_3 c_{123}  \\
+        0                                   & 0                         & 0            \\
+        0                                   & 0                         & 0            \\
+        0                                   & 0                         & 0            \\
+        1                                   & 1                         & 1            \\
+    \end{bmatrix}
+\end{equation}
+
+Note que o manipulador planar não provoca qualquer translação ao longo do eixo
+\(z\) uma vez que qualquer contribuição de \(J_{v_i}\) é nula na terceira
+componente. Além disso, a única componente de rotação influenciada pelo
+movimento das juntas é a rotação em torno também do eixo do eixo \(z\)
+evidenciado pela terceira componente de \(J_{\omega_i}\) igual a 1.
+
+\subsection{Singularidades}
+
+A matriz jacobiana, de dimensão \(6 \times n\), estabelece o mapeamento linear
+entre as velocidades das juntas e do efetuador final através da relação:
+
+\begin{equation}\label{eq:jacobian-mapping}
+    \xi = J(q) \dot{q}
+\end{equation}
+
+que coloca de forma explícita a dependência da configuração atual do
+manipulador no cálculo de \(J\). Tal mapeamento implica que qualquer vetor de
+velocidades do efetuador final é uma combinação linear das colunas da matriz
+jacobiana:
+
+\begin{equation}
+    \xi = J_1 \dot{q_1} + J_2 \dot{q_2} + \cdots + J_n \dot{q_n}
+\end{equation}
+
+Uma vez que \(\xi \in \mathbb{R}^6\) o manipulador so conseguirá desempenhar
+uma velocidade arbitrária se todas as colunas de \(J\) forem linearmente
+independentes, ou seja, quando o posto da matriz jacobiana for igual a \(6\).
+Para uma matriz \(J \in \mathbb{R}^{6 \times n}\) é sempre verdade que
+\(\text{posto}(J) \leq \min(6, n)\). Com efeito, no caso do manipulador planar
+3R tínhamos \(n = 3\) e desse modo \(\text{posto}(J) \leq 3\) evidenciando o
+fato de que o manipulador não consegue desenvolver qualquer velocidade no
+espaço de trabalho.
+
+Configurações paras as quais o posto da matriz jacobiana é menor que o máximo
+possível (em inglês \emph{rank deficiency}) são denominadas de
+\emph{singularidades} ou configurações singulares. Identificar configurações
+singulares é de grande importância para o controle de manipuladores por
+diversos motivos, entre eles:
+
+\begin{itemize}
+    \item Singularidades representam configurações nas quais a mobilidade do manipulador
+          é reduzida, ou seja, não é possível impor um movimento arbitrário ao efetuador
+          final.
+    \item Quando o manipulador está em uma singularidade, pode haver infinitas soluções
+          para o problema de cinemática inversa.
+    \item Nas proximidades de uma singularidade, pequenas variações nas velocidades no
+          espaço operacional podem causar velocidades ilimitadas no espaço das juntas.
+\end{itemize}
+
+Quando a matriz jacobiana é quadrada, podemos usar o fato de que seu
+determinante se anula em configurações singulares, contudo ainda assim o
+problema de determinar o conjunto de configurações é difícil, pois precisamos
+resolver a equação
+
+\begin{equation}
+    \det(J(q)) = 0
+\end{equation}
+
+que geralmente envolve termos com alto grau de não linearidade. Nas próximas
+seções, examinaremos técnicas que viabilizam um esquema de controle capaz de se
+afastar de configurações singulares ao explorar a redundância presente em
+manipuladores planares. Isso se refere a casos em que a matriz Jacobiana é
+retangular, apresentando mais velocidades no espaço das juntas (colunas) do que
+velocidades possíveis no espaço de trabalho (linhas).
+
+\subsection{Cinemática Inversa Diferencial}
+
+Se a matriz jacobiana definida na equação (\ref{eq:jacobian-mapping}) é
+quadrada e não singular, podemos resolver o problema de cinemática inversa
+através da simples inversão da mesma:
+
+\begin{equation}\label{eq:resolved-rate}
+    \dot{q} = J^{-1}(q) \xi
+\end{equation}
+
+Se a configuração inicial do manipulador \(q(0)\) é conhecida as posições das
+juntas podem ser calculadas integrando as velocidades no tempo:
+
+\begin{equation}
+    q(t) = q(0) + \int_{0}^{t} \dot{q}(\tau) d\tau
+\end{equation}
+
+A integração em tempo discreto pode ser feita utilizando técnicas de métodos
+numéricos. A abordagem mais simples consiste na integração pelo método de
+Euler, onde as posições das juntas no instante atual \(t_k\) são utilizadas
+para calcular a configuração do manipulador no instante posterior \(t_{k+1} =
+t_k + \Delta t\):
+
+\begin{align}
+    q(t_{k + 1}) & = q(t_k) + \dot{q}(t_k) \delta_t
+\end{align}
+
+onde \(\delta_t\) é um intervalo de integração apropriado (tempo de
+amostragem).
+
+O esquema de controle descrito acima é conhecido como \emph{resolved rate
+    control}, o qual consegue de maneira simples e elegante o solucionar o problema
+de gerar movimentos no efetuador final de velocidade constante sem recorrer à
+soluções numéricas ou analíticas para o cálculo da cinemática inversa. Tal
+esquema é útil na geração de trajetórias retilíneas no espaço de trabalho,
+conhecidas como trajetórias cartesianas, uma vez que a componente translacional
+da velocidade do efetuador final tem direção constante ao longo de todo o
+trajeto pode ser tratada de maneira independente da componente rotacional.
+
+Como exemplo, ainda considerando o manipulador planar 3R, poderíamos apenas
+especificar um vetor de velocidades \(\xi\) que leva em conta as componentes do
+plano \(xy\) da velocidade linear e a componente de rotação angular em torno do
+eixo \(z\) de modo que:
+
+\begin{equation}
+    \xi = \begin{bmatrix}
+        v_x \\
+        v_y \\
+        \omega_z
+    \end{bmatrix}
+\end{equation}
+
+Assim a matriz jacobiana se torna livre das linhas que possuem apenas zeros:
+
+\begin{equation}
+    J(q) = \begin{bmatrix}
+        -a_1 s_1 - a_2 s_{12} - a_3 s_{123} & -a_2 s_{12} - a_3 s_{123} & -a_3 s_{123} \\
+        a_1 c_1 + a_2 c_{12} + a_3 c_{123}  & a_2 c_{12} + a_3 c_{123}  & a_3 c_{123}  \\
+        1                                   & 1                         & 1
+    \end{bmatrix}
+\end{equation}
+
+e contanto que não seja singular pode ser facilmente invertida. Desse modo, se
+quisermos por exemplo, gerar um movimento retilíneo no efetuador final paralelo
+ao eixo \(x\) do plano \(xy\) com velocidade constante, basta tomar \(\xi = \begin{bmatrix}
+    v_x & 0 & 0
+\end{bmatrix}^\top\) com \(0 < v_x \ll 1\).
 
 \section{Manipuladores redundantes}
 
-\subsection{A Pseudo-Inversa da Jacobiana}
+Manipuladores cinematicamente redundantes, são aqueles que possuem mais juntas
+do que o número estritamente necessário para a execução de uma determinada
+tarefa. Este excedente de juntas confere a esses manipuladores um nível
+aumentado de destreza, permitindo-lhes navegar em ambientes complexos com maior
+flexibilidade. Nesta seção vamos introduzir uma solução geral para o problema
+da cinemática inversa diferencial quando o matriz jacobiana é retangular,
+envolvendo o conceito da sua \emph{pseudo-inversa}. Em seguida, utilizando a
+decomposição em valores singulares de \(J\) iremos fornecer uma descrição
+geométrica e qualitativa da destreza associada à uma dada configuração através
+dos conceitos do elipsoide e da medida de manipulabilidade. Por fim, vamos ver
+como podemos utilizar a solução geral fornecida pela pseudo-inversa para
+otimizar diferentes índices de performance com o objetivo de evitar
+singularidades e limites mecânicos das juntas.
+
+\subsection{Pseudo-Inversa da Jacobiana}
+
+Num manipulador cinematicamente redundante, a matriz jacobiana de dimensão \(m
+\times n\) será retangular (\(m < n\)). Isso significa que \(J\) possui mais
+colunas do que linhas e nesse caso existem infinitas soluções para o problema
+de cinemática inversa diferencial. Uma solução possível nesse caso é tratar o
+problema como um de otimização, onde buscamos uma solução que minimize por
+exemplo \(||\dot{q}||^2\). Pode ser mostrado que tal solução é dada por:
+
+\begin{equation}\label{eq:pseudo-inverse}
+    \dot{q} = J^\dag \xi + (I_n - J^\dag J) \dot{q_0}
+\end{equation}
+
+onde \(\dot{q_0}\) é um vetor de velocidades arbitrário e a matriz \(J^\dag\) é
+conhecida como \emph{matriz inversa de Moore-Penrose} ou apenas
+\emph{pseudo-inversa} de \(J\) e é dada por:
+
+\begin{equation}
+    J^\dag = J^\top {(J J^\top)}^{-1}
+\end{equation}
+
+Vale notar que o termo \(I_n - J^\dag J\) atua projetando o vetor \(\dot{q_0}\)
+no espaço nulo de \(J\). Com efeito, aplicando a jacobiana ao vetor projetado
+teremos:
+
+\begin{align*}
+    J (I_n - J^\dag J) \dot{q_0} & = J \dot{q_0} - J J^\dag J \dot{q_0}                   \\
+                                 & = J \dot{q_0} - (J J^\top) (J J^\top)^{-1} J \dot{q_0} \\
+                                 & = J \dot{q_0} - J \dot{q_0}                            \\
+                                 & = 0
+\end{align*}
+
+permitindo que o manipulador realize movimentos internos no
+espaço das juntas que que não afetam o movimento do efetuador final.
+
+\subsection{Medida de Manipulabilidade}
+
+\begin{equation}
+    \dot{q}^\top \dot{q} \leq 1
+\end{equation}
+
+ao tomarmos a solução de menor norma \(\dot{q} = J^\dag \xi\)
+
+\begin{align*}
+    \dot{q}^\top \dot{q} & = {(J^\dag \xi)}^\top J^\dag \xi                                          \\
+                         & = \xi^\top {(J^\top {(J J^\top)}^{-1})}^\top J^\top {(J J^\top)}^{-1} \xi \\
+                         & = \xi^\top {(J J^\top)}^{-1} (J J^\top) {(J J^\top)}^{-1} \xi             \\
+    \dot{q}^\top \dot{q} & = \xi^\top {(J J^\top)}^{-1} \xi
+\end{align*}
+
+considerando a decomposição em valores singulares da jacobiana \(J = U \Sigma
+V^\top\)
+
+\begin{align*}
+    \dot{q}^\top \dot{q} & = \xi^\top {(U \Sigma V^\top V \Sigma^\top U^\top)}^{-1} \xi \\
+                         & = \xi^\top {(U \Sigma^2 U^\top)}^{-1} \xi                    \\
+                         & = \xi^\top U \Sigma^{-2} U^\top \xi                          \\
+    \dot{q}^\top \dot{q} & = {(U^\top \xi)}^\top \Sigma^{-2} (U^\top \xi)
+\end{align*}
+
+onde a matriz \(\Sigma\) é diagonal:
+
+\begin{equation}
+    \Sigma = \begin{bmatrix}
+        \sigma_1^{-2} &               &        &               & \\
+                      & \sigma_2^{-2} &        &               & \\
+                      &               & \ddots &               & \\
+                      &               &        & \sigma_m^{-2} & \\
+    \end{bmatrix}
+\end{equation}
+
+\(\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_m\)
+
+fazendo a substituição \(w = U^\top \xi\)
+
+\begin{equation}
+    w^\top \Sigma^{-2} w = \sum_{i=1}^m{\frac{{w_i}^2}{{\sigma_i}^2}} \leq 1
+\end{equation}
+
+onde os eixos do elipsoide, no sistema de coordenadas original, é dado pelos
+vetores \(\sigma_i u_i\).
+
+\begin{equation}
+    \mu = \sigma_1 \sigma_2 \cdots \sigma_m
+\end{equation}
 
 \subsection{Resolução de Redundância}
 
-% Gerando movimentos no espaço nulo da jacobiana
+\begin{equation}
+    \dot{q_0} = k_0 {\left( \frac{\partial w(q)}{\partial q} \right)}^\top
+\end{equation}
+
+\begin{equation}
+    w(q) = \sqrt{\det(J(q){J(q)}^\top)}
+\end{equation}
+
+\begin{equation}
+    w(q) = -\frac{1}{2n} \sum_{i=1}^{n}{{\left(\frac{q_i - \bar{q_i}}{q_{iM} - q_{im}}\right)}^2}
+\end{equation}
