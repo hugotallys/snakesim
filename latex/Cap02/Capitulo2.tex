@@ -866,48 +866,58 @@ conhecida como \emph{matriz inversa de Moore-Penrose} ou apenas
 \end{equation}
 
 Vale notar que o termo \(I_n - J^\dag J\) atua projetando o vetor \(\dot{q_0}\)
-no espaço nulo de \(J\). Com efeito, aplicando a jacobiana ao vetor projetado
-teremos:
+no espaço nulo de \(J\). Com efeito, aplicando a jacobiana à esquerda na
+equação (\ref{eq:pseudo-inverse}) temos:
 
 \begin{align*}
-    J (I_n - J^\dag J) \dot{q_0} & = J \dot{q_0} - J J^\dag J \dot{q_0}                   \\
-                                 & = J \dot{q_0} - (J J^\top) (J J^\top)^{-1} J \dot{q_0} \\
-                                 & = J \dot{q_0} - J \dot{q_0}                            \\
-                                 & = 0
+    J \dot{q} & = J J^\dag \xi + J (I_n - J^\dag J) \dot{q_0}                                   \\
+              & = J J^\top {(J J^\top)}^{-1} \xi + (J - J J^\top {(J J^\top)}^{-1} J) \dot{q_0} \\
+              & = \xi + (J - J) \dot{q_0}                                                       \\
+    J \dot{q} & = \xi
 \end{align*}
 
-permitindo que o manipulador realize movimentos internos no
-espaço das juntas que que não afetam o movimento do efetuador final.
+permitindo que o manipulador realize movimentos internos no espaço das juntas
+que que não afetam a velocidade \(\xi\) do efetuador final.
 
 \subsection{Medida de Manipulabilidade}
 
+Uma maneira de investigar mais a fundo o mapeamento linear estabelecido pela
+jacobiana é entender como a mesma ``deforma'' o vetor \(\dot{q}\) de entradas
+para produzir o vetor \(\xi\) de saídas. Para isso, podemos considerar o disco
+formado pelo conjunto de velocidades com norma unitária:
+
 \begin{equation}
-    \dot{q}^\top \dot{q} \leq 1
+    \left\Vert \dot{q} \right\Vert^2 = q_1^2 + q_2^2 + \cdots + q_n^2 \leq 1
 \end{equation}
 
-ao tomarmos a solução de menor norma \(\dot{q} = J^\dag \xi\)
+Substituindo a solução de menor norma \(\dot{q} = J^\dag \xi\):
 
-\begin{align*}
-    \dot{q}^\top \dot{q} & = {(J^\dag \xi)}^\top J^\dag \xi                                          \\
-                         & = \xi^\top {(J^\top {(J J^\top)}^{-1})}^\top J^\top {(J J^\top)}^{-1} \xi \\
-                         & = \xi^\top {(J J^\top)}^{-1} (J J^\top) {(J J^\top)}^{-1} \xi             \\
-    \dot{q}^\top \dot{q} & = \xi^\top {(J J^\top)}^{-1} \xi
-\end{align*}
+\begin{align}\label{eq:manipulability-ellipsoid}
+    \left\Vert \dot{q} \right\Vert^2 & = \dot{q}^\top \dot{q} \notag                                                    \\
+                                     & = {(J^\dag \xi)}^\top J^\dag \xi \notag                                          \\
+                                     & = \xi^\top {(J^\top {(J J^\top)}^{-1})}^\top J^\top {(J J^\top)}^{-1} \xi \notag \\
+                                     & = \xi^\top {(J J^\top)}^{-1} (J J^\top) {(J J^\top)}^{-1} \xi \notag             \\
+    \left\Vert \dot{q} \right\Vert^2 & = \xi^\top {(J J^\top)}^{-1} \xi \leq 1
+\end{align}
 
-considerando a decomposição em valores singulares da jacobiana \(J = U \Sigma
-V^\top\)
+A equação (\ref{eq:manipulability-ellipsoid}) define uma região no espaço de
+trabalho conhecido como \emph{elipsoide de manipulabilidade} que representa
+todas as velocidades possíveis do efetuador final para uma dada configuração do
+manipulador. Esse fato pode ser facilmente verificado ao considerarmos a
+decomposição em valores singulares (SVD) da jacobiana \(J = U \Sigma V^\top\):
 
-\begin{align*}
-    \dot{q}^\top \dot{q} & = \xi^\top {(U \Sigma V^\top V \Sigma^\top U^\top)}^{-1} \xi \\
-                         & = \xi^\top {(U \Sigma^2 U^\top)}^{-1} \xi                    \\
-                         & = \xi^\top U \Sigma^{-2} U^\top \xi                          \\
-    \dot{q}^\top \dot{q} & = {(U^\top \xi)}^\top \Sigma^{-2} (U^\top \xi)
-\end{align*}
+\begin{align}\label{eq:manipulability-ellipsoid-svd}
+    \left\Vert \dot{q} \right\Vert^2 & = \xi^\top {(U \Sigma V^\top V \Sigma^\top U^\top)}^{-1} \xi \notag \\
+                                     & = \xi^\top {(U \Sigma^2 U^\top)}^{-1} \xi \notag                    \\
+                                     & = \xi^\top U \Sigma^{-2} U^\top \xi \notag                          \\
+    \left\Vert \dot{q} \right\Vert^2 & = {(U^\top \xi)}^\top \Sigma^{-2} (U^\top \xi)
+\end{align}
 
-onde a matriz \(\Sigma\) é diagonal:
+onde sabemos que \(U\) e \(V\) são matrizes ortogonais, isto é \(U^{-1} =
+U^\top\) e \(V^{-1} = V^\top\). Além disso a matriz
 
 \begin{equation}
-    \Sigma = \begin{bmatrix}
+    \Sigma^{-2} = \begin{bmatrix}
         \sigma_1^{-2} &               &        &               & \\
                       & \sigma_2^{-2} &        &               & \\
                       &               & \ddots &               & \\
@@ -915,31 +925,74 @@ onde a matriz \(\Sigma\) é diagonal:
     \end{bmatrix}
 \end{equation}
 
-\(\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_m\)
-
-fazendo a substituição \(w = U^\top \xi\)
+é diagonal e os termos que \(\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_m\) são os valores
+singulares de \(J\). Por fim, ao fazermos a substituição \(w = U^\top \xi\) podemos reescrever a equação
+(\ref{eq:manipulability-ellipsoid-svd}) como:
 
 \begin{equation}
     w^\top \Sigma^{-2} w = \sum_{i=1}^m{\frac{{w_i}^2}{{\sigma_i}^2}} \leq 1
 \end{equation}
 
-onde os eixos do elipsoide, no sistema de coordenadas original, é dado pelos
-vetores \(\sigma_i u_i\).
+evidenciado que o disco é mapeado num elipsoide com eixos alinhados a um
+sistema de coordenadas rotacionado por \(U^\top\). No sistema de coordenadas
+original, os semi-eixos do elipsoide são dados pelos vetores \(\sigma_i u_i\).
+
+A medida de manipulabilidade \(\mu\) é definida como o produto dos valores
+singulares de \(J\):
 
 \begin{equation}
     \mu = \sigma_1 \sigma_2 \cdots \sigma_m
 \end{equation}
 
+que é proporcional ao volume do elipsoide de manipulabilidade. A medida que nos
+aproximamos de uma singularidade, um ou mais dos valores singulares de \(J\) se
+aproximam de zero, reduzindo o volume do elipsoide e consequentemente a
+destreza do manipulador. Isso pode ser visualizado na figura~\ref{fig:manipulability-ellipsoid} onde para o braço
+planar 3R, o elipsoide de manipulabilidade é mostrado para diferentes
+configurações do manipulador e vai se tornando cada vez mais achatado à medida
+que nos aproximamos de uma singularidade.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.65\textwidth]{Images/3r-ellipsoid.png}
+    \caption{Elipsoide de manipulabilidade para diferentes configurações do manipulador planar 3R.}\label{fig:manipulability-ellipsoid}
+\end{figure}
+
 \subsection{Resolução de Redundância}
+
+Ao estabelecermos a solução geral dada pela equação (\ref{eq:pseudo-inverse}),
+dissemos que o vetor \(\dot{q_0}\) pode ser escolhido arbitrariamente. Uma
+possibilidade é tomá-lo de forma a maximar algum índice de performance \(w\),
+para isso escolhendo o vetor na direção do gradiente:
 
 \begin{equation}
     \dot{q_0} = k_0 {\left( \frac{\partial w(q)}{\partial q} \right)}^\top
 \end{equation}
 
+onde \(k_0 > 0\) é uma constante positiva que determina o tamanho do passo.
+
+Uma escolha natural para o índice de performance \(w\) é a medida de
+manipulabilidade definida anteriormente:
+
 \begin{equation}
     w(q) = \sqrt{\det(J(q){J(q)}^\top)}
 \end{equation}
 
+onde a equivalência com a equação (\ref{eq:manipulability-ellipsoid}) se deve
+ao fato que se \(\lambda_i\) são os autovalores de \(J J^\top\) então
+\(\sigma_i = \sqrt{\lambda_i}\).
+
+Apesar do cálculo da manipulabilidade ser relativamente simples, o cálculo do
+gradiente usualmente deve ser feito numericamente devido à complexidade das
+expressões envolvidas. Uma métrica comum que pode servir como alternativa é a
+\emph{distância para os limites mecânicos das juntas} dada por:
+
 \begin{equation}
     w(q) = -\frac{1}{2n} \sum_{i=1}^{n}{{\left(\frac{q_i - \bar{q_i}}{q_{iM} - q_{im}}\right)}^2}
+\end{equation}
+
+que tem seu gradiente de maneira analítica dado por:
+
+\begin{equation}
+    \frac{\partial w(q)}{\partial q_i} = -\frac{1}{n} \frac{q_i - \bar{q_i}}{{(q_{iM} - q_{im})}^2}
 \end{equation}
