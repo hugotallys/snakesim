@@ -168,3 +168,6 @@ webots/controllers/*/*.ini
 build/
 install/
 log/
+
+# CSpell configuration file
+cspell.json

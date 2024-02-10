@@ -1,6 +1,8 @@
+import os
+from glob import glob
 from setuptools import find_packages, setup
 
-package_name = 'parmsim'
+package_name = 'snakesim_control'
 
 setup(
     name=package_name,
@@ -10,6 +12,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob(
+            os.path.join('launch', '*launch.[pxy][yma]*')))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,8 +24,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'parmsim_node = parmsim.parmsim_node:main',
-            'parmsim_animate = parmsim.parmsim_animate:main'
+            "resolved_rate_control=snakesim_control.resolved_rate_control:main",
+            "plot_results=snakesim_control.plot_results:main",
         ],
     },
 )

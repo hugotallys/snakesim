@@ -12,7 +12,6 @@ float deg2rad(float deg) {
     return deg * M_PI / 180.0f;
 }
 
-
 Link::Link(float x, float y, float length, float angle) {
     this->length = length;
     this->angle = angle;
@@ -24,7 +23,7 @@ Link::Link(float x, float y, float length, float angle) {
     this->prevLink = nullptr;
 }
 
-Link::Link(Link* prevLink, float length, float angle) {
+Link::Link(std::shared_ptr<Link> prevLink, float length, float angle) {
     this->length = length;
     this->angle = angle + prevLink->angle;
     this->prevLink = prevLink;
@@ -33,10 +32,13 @@ Link::Link(Link* prevLink, float length, float angle) {
         iniPos.x + this->length * cos(this->angle),
         iniPos.y + this->length * sin(this->angle)
     );
-    this->prevLink->nextLink = this;
 }
 
-// Draw the link as a rectengle
+void Link::set_next_link(std::shared_ptr<Link> nextLink) {
+    this->nextLink = nextLink;
+}
+
+// Draw the link as a rectangle
 void Link::draw_rectangle(sf::RenderWindow& window) {
     sf::RectangleShape link(sf::Vector2f(this->length, LINK_WIDTH));
     link.setOrigin(0.0f, LINK_WIDTH / 2.0f);

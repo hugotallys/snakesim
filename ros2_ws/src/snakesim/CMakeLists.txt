@@ -4,6 +4,8 @@ project(snakesim)
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(snakesim_interfaces REQUIRED)
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Set C++ standard
@@ -16,8 +18,9 @@ include_directories(
 )
 
 # Create executable
-add_executable(snakesim_node src/snakesim_node.cpp src/Link.cpp)
-ament_target_dependencies(snakesim_node ament_index_cpp)
+add_executable(snakesim_node src/subscriber.cpp src/SnakeSim.cpp src/Link.cpp)
+ament_target_dependencies(snakesim_node ament_index_cpp rclcpp snakesim_interfaces)
+
 
 # Link against necessary libraries
 target_link_libraries(snakesim_node

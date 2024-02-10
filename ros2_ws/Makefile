@@ -1,6 +1,6 @@
 
 # Set the ROS2 workspace directory
-ROS2_WS_DIR := /home/hgtllys/Documents/Projects/densoVP6242/ros2_ws
+ROS2_WS_DIR := /home/hgtllys/Documents/Projects/snakesim/ros2_ws
 
 # Set the name of the ROS2 package
 PACKAGE_NAME := snakesim
@@ -31,5 +31,21 @@ run:
 clean:
 	@echo "Cleaning $(PACKAGE_NAME)..."
 	@rm -rf $(PACKAGE_BUILD_DIR) $(PACKAGE_INSTALL_DIR)
+
+clean_results:
+	@echo "Cleaning results..."
+	@rm -rf $(ROS2_WS_DIR)/src/snakesim_control/snakesim_control/results
+
+horizontal:
+	@echo "Running horizontal displacement experiment..."
+	ros2 run snakesim_control resolved_rate_control --ros-args -p dx:=-3. -p dy:=.5 -p q0:='[60., -60., -60.]' -p k0:=0. -p metric:=manipulability -p GUI:=True
+
+vertical:
+	@echo "Running vertical displacement experiment..."
+	ros2 run snakesim_control resolved_rate_control --ros-args -p dx:=0. -p dy:=-2. -p k0:=.25 -p metric:=manipulability -p GUI:=True
+
+diagonal:
+	@echo "Running diagonal displacement experiment..."
+	ros2 run snakesim_control resolved_rate_control --ros-args -p dx:=2. -p dy:=-2. -p k0:=0. -p metric:=manipulability -p GUI:=True
 
 .PHONY: build run clean

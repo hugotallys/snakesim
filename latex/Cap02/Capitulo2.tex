@@ -940,21 +940,22 @@ original, os semi-eixos do elipsoide são dados pelos vetores \(\sigma_i u_i\).
 A medida de manipulabilidade \(\mu\) é definida como o produto dos valores
 singulares de \(J\):
 
-\begin{equation}
+\begin{equation}\label{eq:manipulability}
     \mu = \sigma_1 \sigma_2 \cdots \sigma_m
 \end{equation}
 
-que é proporcional ao volume do elipsoide de manipulabilidade. A medida que nos
+que é proporcional ao volume do elipsoide de manipulabilidade. Ao passo que nos
 aproximamos de uma singularidade, um ou mais dos valores singulares de \(J\) se
 aproximam de zero, reduzindo o volume do elipsoide e consequentemente a
-destreza do manipulador. Isso pode ser visualizado na figura~\ref{fig:manipulability-ellipsoid} onde para o braço
-planar 3R, o elipsoide de manipulabilidade é mostrado para diferentes
-configurações do manipulador e vai se tornando cada vez mais achatado à medida
-que nos aproximamos de uma singularidade.
+destreza do manipulador. Isso pode ser visualizado na
+figura~\ref{fig:manipulability-ellipsoid} onde para o braço planar 3R, o
+elipsoide de manipulabilidade é mostrado para diferentes configurações do
+manipulador e vai se tornando cada vez mais achatado à medida que nos
+aproximamos do limite do espaço de trabalho.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.65\textwidth]{Images/3r-ellipsoid.png}
+    \includegraphics[width=0.9\textwidth]{Images/3r-ellipsoid.png}
     \caption{Elipsoide de manipulabilidade para diferentes configurações do manipulador planar 3R.}\label{fig:manipulability-ellipsoid}
 \end{figure}
 
@@ -971,28 +972,44 @@ para isso escolhendo o vetor na direção do gradiente:
 
 onde \(k_0 > 0\) é uma constante positiva que determina o tamanho do passo.
 
-Uma escolha natural para o índice de performance \(w\) é a medida de
-manipulabilidade definida anteriormente:
+Uma escolha natural para o índice de performance \(w\) é a \emph{medida de
+    manipulabilidade de Yoshikawa}:
 
 \begin{equation}
     w(q) = \sqrt{\det(J(q){J(q)}^\top)}
 \end{equation}
 
-onde a equivalência com a equação (\ref{eq:manipulability-ellipsoid}) se deve
-ao fato que se \(\lambda_i\) são os autovalores de \(J J^\top\) então
-\(\sigma_i = \sqrt{\lambda_i}\).
+onde vale ressaltar que é equivalente àquela definida na a equação
+(\ref{eq:manipulability}) uma vez que se \(\lambda_i\) são os autovalores de
+\(J J^\top\) então \(\sigma_i = \sqrt{\lambda_i}\).
 
-Apesar do cálculo da manipulabilidade ser relativamente simples, o cálculo do
-gradiente usualmente deve ser feito numericamente devido à complexidade das
-expressões envolvidas. Uma métrica comum que pode servir como alternativa é a
+Apesar do cálculo da manipulabilidade ser relativamente simples, o mesmo não se
+pode dizer para o cálculo do seu gradiente devido à complexidade das expressões
+envolvidas. Uma alternativa é utilizar uma métrica mais simples como a
 \emph{distância para os limites mecânicos das juntas} dada por:
 
 \begin{equation}
     w(q) = -\frac{1}{2n} \sum_{i=1}^{n}{{\left(\frac{q_i - \bar{q_i}}{q_{iM} - q_{im}}\right)}^2}
 \end{equation}
 
-que tem seu gradiente de maneira analítica dado por:
+Ao maximar tal índice, espera-se que o manipulador mantenha-se próximo ao ponto
+central de atuação de cada junta, evitando assim configurações singulares no
+limite do espaço de trabalho. Além disso, o vetor gradiente pode ser calculado
+de maneira analítica onde cada coordenada é dada por:
 
 \begin{equation}
     \frac{\partial w(q)}{\partial q_i} = -\frac{1}{n} \frac{q_i - \bar{q_i}}{{(q_{iM} - q_{im})}^2}
 \end{equation}
+
+Outro ponto a salientar é que a escolha do tamanho do passo \(k_0\) é crucial
+para a performance do algoritmo. Se \(k_0\) for muito pequeno o processo de
+otimização pode se tornar muito lento, enquanto que se \(k_0\) for muito grande
+isso pode levar até mesmo uma diminuição ou até mesmo não convergência do valor
+de \(w\) devido a oscilações em torno do ponto de máximo local.
+
+No próximo capítulo, iremos utilizar os conceitos apresentados até agora na
+concepção de um simulador minimalista do manipulador planar 3R denominado
+\emph{Snakesim}. O objetivo principal será explorar a resolução de redundância
+presente na execução de trajetórias cartesianas no plano \(xy\) do espaço de
+trabalho para maximizar os índices tanto de manipulabilidade quanto de distância
+para os limites das juntas introduzidos nessa seção.
