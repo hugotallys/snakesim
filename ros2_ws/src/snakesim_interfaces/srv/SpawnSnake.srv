@@ -1,4 +1,0 @@
-float32[3] position
-float32[2] origin
----
-bool success
