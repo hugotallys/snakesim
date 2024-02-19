@@ -1,0 +1,47 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/Yamor.proto"
+EXTERNPROTO "../protos/YamorBase.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.43298085310009365 -0.16092714064669375 0.886921662973678 3.7784531045186096
+  position 0.8076361602503206 0.7786266799271362 1.5705330508688273
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 4 4
+}
+YamorBase {
+}
+Yamor {
+  translation 0.18 0 0.35
+  name "yamor_2"
+}
+Yamor {
+  translation 0.28 0 0.35
+  name "yamor_3"
+}
+Yamor {
+  translation 0.38 0 0.35
+  name "yamor_4"
+}
+Yamor {
+  translation 0.48 0 0.35
+  name "yamor_5"
+}
+Yamor {
+  translation 0.58 0 0.35
+  name "yamor_6"
+}
+Yamor {
+  translation 0.68 0 0.35
+  name "yamor_7"
+}

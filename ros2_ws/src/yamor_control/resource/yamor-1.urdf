@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<robot name="Yamor1">
+    <webots>
+        <plugin type="yamor_control.yamor_robot_driver.YamorDriver">
+            <yamorCount>1</yamorCount>
+        </plugin>
+    </webots>
+</robot>

@@ -1,0 +1,55 @@
+# VRML_SIM R2023b utf8
+# license: Apache License 2.0
+# license url: http://www.apache.org/licenses/LICENSE-2.0
+# Pole base.
+
+EXTERNPROTO "../protos/Yamor.proto"
+
+PROTO YamorBase[
+    field SFVec3f       translation     0 0 0.35
+    field SFRotation    rotation        0 0 1 0
+    field SFString      name            "Pole Base"
+    field SFString      yamorName       "yamor_1"
+] 
+{
+    Solid {
+        name IS name
+        rotation IS rotation
+        translation IS translation
+        children [
+            Group {
+            children [
+                Pose {
+                translation 0 0 -0.3
+                children [
+                    Shape {
+                    appearance PBRAppearance {
+                        baseColor 0.647059 0.113725 0.176471
+                        roughness 1
+                        metalness 0
+                    }
+                    geometry DEF BASE_SHAPE_BOTTOM Box {
+                        size 0.5 0.5 0.1
+                    }
+                    }
+                ]
+                }
+                Shape {
+                appearance PBRAppearance {
+                    baseColor 0.647059 0.113725 0.176471
+                    roughness 1
+                    metalness 0
+                }
+                geometry DEF BASE_SHAPE Box {
+                    size 0.1 0.1 0.5
+                }
+                }
+            ]
+            }
+            Yamor {
+                translation 0.08 0 0
+                name IS yamorName
+            }
+        ]
+    }
+}

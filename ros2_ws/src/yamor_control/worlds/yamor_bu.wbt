@@ -1,0 +1,118 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/Yamor.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.20009355640097623 -0.6247640054813006 0.7547400255331439 5.480566942202599
+  position -1.7753067834247827 1.248836161400966 1.454939023503939
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 4 4
+}
+Solid {
+  translation 0 0 0.35
+  rotation 0.0029417603819451056 -0.4974910645920308 0.8674641126276885 2.64402e-06
+  children [
+    Group {
+      children [
+        Pose {
+          translation 0 0 -0.3
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 0.647059 0.113725 0.176471
+                roughness 1
+                metalness 0
+              }
+              geometry DEF BASE_SHAPE_BOTTOM Box {
+                size 0.5 0.5 0.1
+              }
+            }
+          ]
+        }
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.647059 0.113725 0.176471
+            roughness 1
+            metalness 0
+          }
+          geometry DEF BASE_SHAPE Box {
+            size 0.1 0.1 0.5
+          }
+        }
+      ]
+    }
+    DEF BASE_CONNECTOR Connector {
+      translation 3.67323e-08 0.05 0
+      rotation 0 0 1 1.5708
+      children [
+        DEF ROUND_SHAPE Pose {
+          rotation 0 1 0 1.5708
+          children [
+            Shape {
+              appearance PBRAppearance {
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.0005
+                radius 0.0075
+              }
+            }
+          ]
+        }
+      ]
+      name "front_connector"
+      isLocked TRUE
+      distanceTolerance 0.05
+      axisTolerance 0.5
+      rotationTolerance 0.5
+    }
+  ]
+  boundingObject Group {
+    children [
+      USE BASE_SHAPE
+      Pose {
+        translation 0 0 -0.3
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.647059 0.113725 0.176471
+              roughness 1
+              metalness 0
+            }
+            geometry DEF BASE_SHAPE_BOTTOM Box {
+              size 0.5 0.5 0.1
+            }
+          }
+        ]
+      }
+    ]
+  }
+  physics Physics {
+    density 100
+  }
+}
+Yamor {
+  translation 1.10196e-07 0.09 0.35
+  rotation 0 0 1 1.5708
+  name "yamor_1"
+}
+Yamor {
+  translation -3.04053e-07 0.2 0.35
+  rotation -1.66574e-06 7.19235e-09 -1 -1.5708053071795867
+  name "yamor_2"
+}
+Yamor {
+  translation 4.89665e-14 0.31 0.35
+  rotation 0 0 1 1.5708
+  name "yamor_3"
+}
