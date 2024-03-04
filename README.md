@@ -1,13 +1,12 @@
 # SnakeSim
 
-![SnakeSim](./snake-sim.png)
+# Make a virtual env and activate it
+virtualenv -p python3 ./venv
+source ./venv/bin/activate
+# Make sure that colcon doesn’t try to build the venv
+touch ./venv/COLCON_IGNORE
 
-# Build and Run
+pip install -r requirements
 
-```bash
-$ cd ros2_ws
-$ colcon build --pkg-select snakesim
-$ source install/setup.bash
-$ ros2 run snakesim snakesim_node
-```
+
 

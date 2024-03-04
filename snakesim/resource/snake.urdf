@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<robot name="Snake">
+    <webots>
+        <plugin type="snakesim.snake_driver.SnakeDriver" />
+    </webots>
+</robot>

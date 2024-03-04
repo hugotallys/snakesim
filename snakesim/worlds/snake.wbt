@@ -1,0 +1,293 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.1782043803076314 0.10236598148425262 0.9786543846904988 2.004849641965549
+  position 0.6431602575742336 -0.7431155492067131 0.4944295913716134
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+}
+Robot {
+  translation 0 0 0.2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 1
+        roughness 1
+        metalness 0
+      }
+      geometry Mesh {
+        url [
+          "../protos/meshes/servo.stl"
+        ]
+      }
+      castShadows FALSE
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 0 1
+      }
+      device [
+        PositionSensor {
+          name "positionSensor1"
+        }
+        RotationalMotor {
+          name "rotationalMotor1"
+        }
+      ]
+      endPoint Solid {
+        translation 0.06 0 0
+        rotation 1 0 0 1.5708
+        children [
+          HingeJoint {
+            jointParameters HingeJointParameters {
+              axis 0 0 1
+            }
+            device [
+              PositionSensor {
+                name "positionSensor2"
+              }
+              RotationalMotor {
+                name "rotationalMotor2"
+              }
+            ]
+            endPoint Solid {
+              translation 0.06 0 0
+              rotation -0.9999999999999999 0 0 1.5707953071795862
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0 0.666667 0
+                    roughness 1
+                    metalness 0
+                  }
+                  geometry Mesh {
+                    url [
+                      "../protos/meshes/servoSocket.stl"
+                    ]
+                  }
+                  castShadows FALSE
+                }
+                HingeJoint {
+                  jointParameters HingeJointParameters {
+                    axis 0 0 1
+                  }
+                  device [
+                    PositionSensor {
+                      name "positionSensor3"
+                    }
+                    RotationalMotor {
+                      name "rotationalMotor3"
+                    }
+                  ]
+                  endPoint Solid {
+                    translation 0.06 0 0
+                    rotation 1 0 0 1.5708
+                    children [
+                      HingeJoint {
+                        jointParameters HingeJointParameters {
+                          axis 0 0 1
+                        }
+                        device [
+                          PositionSensor {
+                            name "positionSensor4"
+                          }
+                          RotationalMotor {
+                            name "rotationalMotor4"
+                          }
+                        ]
+                        endPoint Solid {
+                          translation 0.06 0 0
+                          rotation -0.9999999999999999 0 0 1.5707953071795862
+                          children [
+                            Shape {
+                              appearance PBRAppearance {
+                                baseColor 0 0.666667 0
+                                roughness 1
+                                metalness 0
+                              }
+                              geometry Mesh {
+                                url [
+                                  "../protos/meshes/servoSocket.stl"
+                                ]
+                              }
+                              castShadows FALSE
+                            }
+                            HingeJoint {
+                              jointParameters HingeJointParameters {
+                                axis 0 0 1
+                              }
+                              device [
+                                PositionSensor {
+                                  name "positionSensor5"
+                                }
+                                RotationalMotor {
+                                  name "rotationalMotor5"
+                                }
+                              ]
+                              endPoint Solid {
+                                translation 0.06 0 0
+                                rotation 1 0 0 1.5708
+                                children [
+                                  HingeJoint {
+                                    jointParameters HingeJointParameters {
+                                      axis 0 0 1
+                                    }
+                                    device [
+                                      PositionSensor {
+                                        name "positionSensor6"
+                                      }
+                                      RotationalMotor {
+                                        name "rotationalMotor6"
+                                      }
+                                    ]
+                                    endPoint Solid {
+                                      translation 0.06 0 0
+                                      rotation 0.9999999999999999 0 0 1.5707953071795862
+                                      children [
+                                        HingeJoint {
+                                          jointParameters HingeJointParameters {
+                                            axis 0 0 1
+                                          }
+                                          device [
+                                            PositionSensor {
+                                              name "positionSensor7"
+                                            }
+                                            RotationalMotor {
+                                              name "rotationalMotor7"
+                                            }
+                                          ]
+                                          endPoint DEF END_EFF Solid {
+                                            translation 0.026 0 0
+                                            rotation -0.9999999999999999 0 0 1.5707953071795862
+                                            children [
+                                              Shape {
+                                                appearance PBRAppearance {
+                                                  baseColor 1 0.666667 0
+                                                  roughness 1
+                                                  metalness 0
+                                                }
+                                                geometry Mesh {
+                                                  url [
+                                                    "../protos/meshes/socket.stl"
+                                                  ]
+                                                }
+                                                castShadows FALSE
+                                              }
+                                            ]
+                                            boundingObject Pose {
+                                              translation -0.01 0 0
+                                              children [
+                                                Box {
+                                                  size 0.025 0.045 0.025
+                                                }
+                                              ]
+                                            }
+                                            physics Physics {
+                                            }
+                                          }
+                                        }
+                                        Shape {
+                                          appearance PBRAppearance {
+                                            baseColor 0 0.666667 0
+                                            roughness 1
+                                            metalness 0
+                                          }
+                                          geometry Mesh {
+                                            url [
+                                              "../protos/meshes/servoSocket.stl"
+                                            ]
+                                          }
+                                          castShadows FALSE
+                                        }
+                                      ]
+                                      boundingObject DEF SERVO_BOUND Pose {
+                                        translation -0.012 0 0
+                                        children [
+                                          Box {
+                                            size 0.05 0.03 0.04
+                                          }
+                                        ]
+                                      }
+                                      physics DEF SERVO_PHYSICS Physics {
+                                      }
+                                    }
+                                  }
+                                  Shape {
+                                    appearance PBRAppearance {
+                                      baseColor 1 0 0
+                                      roughness 1
+                                      metalness 0
+                                    }
+                                    geometry Mesh {
+                                      url [
+                                        "../protos/meshes/servoSocket.stl"
+                                      ]
+                                    }
+                                    castShadows FALSE
+                                  }
+                                ]
+                                boundingObject USE SERVO_BOUND
+                                physics USE SERVO_PHYSICS
+                              }
+                            }
+                          ]
+                          boundingObject USE SERVO_BOUND
+                          physics USE SERVO_PHYSICS
+                        }
+                      }
+                      Shape {
+                        appearance PBRAppearance {
+                          baseColor 1 0 0
+                          roughness 1
+                          metalness 0
+                        }
+                        geometry Mesh {
+                          url [
+                            "../protos/meshes/servoSocket.stl"
+                          ]
+                        }
+                        castShadows FALSE
+                      }
+                    ]
+                    boundingObject USE SERVO_BOUND
+                    physics USE SERVO_PHYSICS
+                  }
+                }
+              ]
+              boundingObject USE SERVO_BOUND
+              physics USE SERVO_PHYSICS
+            }
+          }
+          Shape {
+            appearance PBRAppearance {
+              baseColor 1 0 0
+              roughness 1
+              metalness 0
+            }
+            geometry Mesh {
+              url [
+                "../protos/meshes/servoSocket.stl"
+              ]
+            }
+            castShadows FALSE
+          }
+        ]
+        boundingObject USE SERVO_BOUND
+        physics USE SERVO_PHYSICS
+      }
+    }
+  ]
+  name "Snake"
+  controller "<extern>"
+  supervisor TRUE
+}
