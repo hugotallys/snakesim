@@ -1,11 +1,17 @@
 import rclpy
 import numpy as np
 
+from rclpy.action import ActionServer
 from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
 from rosgraph_msgs.msg import Clock
+from snakesim_interfaces.action import MoveTo
+from geometry_msgs.msg import Pose
+
+from rclpy.executors import MultiThreadedExecutor
 
 from roboticstoolbox import DHRobot, RevoluteDH
+from time import sleep
 
 
 class Robot:
@@ -40,11 +46,28 @@ class Robot:
         return (-k0 / n) * (np.array(values)).reshape(n, 1)
 
 
-class ResolvedRateController(Node):
+class PubSub(Node):
+
     def __init__(self):
-        super().__init__("resolved_rate_controller")
+        super().__init__("pub_sub")
+
         self.n_joints = 7
 
+        self.q = np.zeros(self.n_joints)
+        self.q_ = self.q.copy()
+
+        self.k0 = None
+
+        self.dx = np.zeros(3)
+
+        self.ee_pose = Pose()
+
+        self.robot = Robot()
+
+        self.curr_time = 0.0
+        self.start_time = None
+
+    def init_pub_subs(self):
         self.publisher_ = self.create_publisher(
             Float64MultiArray, "targetPosition", 10
         )
@@ -57,21 +80,9 @@ class ResolvedRateController(Node):
             Clock, "clock", self.simtime_callback, 10
         )
 
-        self.get_logger().info("*** Resolved-Rate-Controller started ***")
-        _angle = np.deg2rad(60)
-        self.q = np.array([_angle, 0, -_angle, 0, -_angle, 0, 0])
-        self.q_ = self.q.copy()
-
-        self.dx = np.zeros(3)
-
-        self.robot = Robot()
-
-        self.set_joint_position()
-
-        self.get_logger().info("Starting the control loop...")
-
-        self.curr_time = 0.0
-        self.start_time = None
+        self.subscriber_ee = self.create_subscription(
+            Pose, "endEffPose", self.pose_callback, 10
+        )
 
     def set_joint_position(self):
         msg = Float64MultiArray(data=self.q.tolist())
@@ -79,6 +90,9 @@ class ResolvedRateController(Node):
 
     def position_callback(self, msg):
         self.q_ = np.array(msg.data)
+
+    def pose_callback(self, msg):
+        self.ee_pose = msg
 
     def simtime_callback(self, msg):
         simulation_time = msg.clock.sec + msg.clock.nanosec / 1e9
@@ -92,7 +106,7 @@ class ResolvedRateController(Node):
             J = self.robot.jacobian(self.q_)
             JT = np.linalg.pinv(J)
 
-            q0dot = self.robot.q0dot(self.q_, k0=0.0)
+            q0dot = self.robot.q0dot(self.q_, k0=self.k0)
 
             dq = (JT @ self.dx).reshape(-1, 1) + (
                 np.eye(self.n_joints) - JT @ J
@@ -100,22 +114,106 @@ class ResolvedRateController(Node):
 
             self.q = np.clip(self.q_ + dq.flatten() * dt, -3.14, 3.14)
 
-            a = 0.1
-            vy = -a * np.sin(simulation_time - 5.0)
-            vz = 0.1  # a*np.cos(simulation_time - 5.0)
-            vx = -0.2  # vy*vz
-            self.dx = np.array([vx, vy, vz])
-
         self.set_joint_position()
         self.curr_time = simulation_time
 
 
+class RRCActionServer(Node):
+
+    def __init__(self, pubsub):
+        super().__init__("rrc_action_server")
+
+        self._action_server = ActionServer(
+            self, MoveTo, "move_to", self.execute_callback
+        )
+
+        self.pubsub = pubsub
+
+    def execute_callback(self, goal_handle):
+        self.get_logger().info("Executing goal...")
+
+        self.pubsub.k0 = goal_handle.request.gain
+
+        self.pubsub.q = np.array(goal_handle.request.initial_configuration)
+
+        self.pubsub.init_pub_subs()
+
+        self.pubsub.set_joint_position()
+
+        feedback_msg = MoveTo.Feedback()
+
+        target_position = np.array(
+            [
+                goal_handle.request.position.x,
+                goal_handle.request.position.y,
+                goal_handle.request.position.z,
+            ]
+        )
+
+        curr_target_position = np.array(
+            [
+                self.pubsub.ee_pose.position.x,
+                self.pubsub.ee_pose.position.y,
+                self.pubsub.ee_pose.position.z,
+            ]
+        )
+
+        alpha = 0.1
+        self.pubsub.dx = target_position - curr_target_position
+        self.pubsub.dx = alpha * self.pubsub.dx
+
+        while True:
+            feedback_msg.current_position = self.pubsub.ee_pose.position
+            feedback_msg.partial_score = 0.0
+            feedback_msg.current_configuration = self.pubsub.q_.tolist()
+
+            goal_handle.publish_feedback(feedback_msg)
+
+            curr_target_position = np.array(
+                [
+                    self.pubsub.ee_pose.position.x,
+                    self.pubsub.ee_pose.position.y,
+                    self.pubsub.ee_pose.position.z,
+                ]
+            )
+
+            if (
+                np.linalg.norm(target_position - curr_target_position)
+                < 0.05
+            ):
+                break
+
+            sleep(0.032)
+
+        goal_handle.succeed()
+
+        result = MoveTo.Result()
+
+        result.score = 0.0
+        result.position_error = 0.0
+
+        return result
+
+
 def main(args=None):
     rclpy.init(args=args)
-    node = ResolvedRateController()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        py_pub_sub = PubSub()
+        py_action_server = RRCActionServer(pubsub=py_pub_sub)
+
+        executor = MultiThreadedExecutor(num_threads=4)
+
+        executor.add_node(py_action_server)
+        executor.add_node(py_pub_sub)
+
+        try:
+            executor.spin()
+        finally:
+            executor.shutdown()
+            py_action_server.destroy_node()
+            py_pub_sub.destroy_node()
+    finally:
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":
