@@ -1,0 +1,10 @@
+float64 gain
+geometry_msgs/Point position
+float64[7] initial_configuration
+---
+float64 score
+float64 position_error
+---
+geometry_msgs/Point current_position
+float64[7] current_configuration
+float64 partial_score
