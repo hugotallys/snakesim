@@ -3,39 +3,74 @@ from time import sleep
 import numpy as np
 import rclpy
 from rclpy.action import ActionServer
-from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
-from snakesim_interfaces.action import MoveTo
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 
-from .resolved_rate_controller import ResolvedRateController
+from snakesim_interfaces.action import MoveTo
+from snakesim_interfaces.srv import JointState
+
+from geometry_msgs.msg import Twist, Pose
+
+from std_msgs.msg import Float64
 
 
 class RRCActionServer(Node):
 
-    def __init__(self, controller, max_iter=1000, tol=0.1):
-        super().__init__("rrc_action_server")
+    def __init__(self, max_iter=1500, tol=0.01):
+        super().__init__("go_to_point_action_server")
 
         self._action_server = ActionServer(
             self, MoveTo, "move_to", self.execute_callback
         )
 
-        self.controller = controller
-
         self.max_iter = max_iter
         self.tol = tol
+
+        self.get_logger().info("RRC Action Server has been started.")
+
+        service_client_cb_group = MutuallyExclusiveCallbackGroup()
+
+        self.cli = self.create_client(
+            JointState,
+            "init_joint_state",
+            callback_group=service_client_cb_group,
+        )
+
+        self.end_effector_pose_subscriber = self.create_subscription(
+            Pose,
+            "end_effector_pose",
+            self.end_effector_pose_callback,
+            10,
+            callback_group=service_client_cb_group,
+        )
+
+        self.twist_publisher = self.create_publisher(
+            Twist, "target_twist", 10
+        )
+
+        self.gain_publisher = self.create_publisher(
+            Float64, "target_gain", 10
+        )
+
+        self.end_effector_pose = Pose()
+
+    def send_request(self, joint_state):
+        request = JointState.Request()
+        request.joint_state = joint_state
+        response = self.cli.call(request)
+        return response
+
+    def end_effector_pose_callback(self, msg):
+        self.end_effector_pose = msg
 
     def execute_callback(self, goal_handle):
         self.get_logger().info("*** Executing goal ... ***")
 
-        self.controller.set_controller_params(
-            k0=goal_handle.request.gain,
-            q=np.array(goal_handle.request.initial_configuration),
+        self.send_request(
+            joint_state=goal_handle.request.initial_configuration,
         )
-
-        self.controller.init_pub_subs()
-
-        self.controller.set_joint_position()
 
         sleep(1)
 
@@ -43,22 +78,37 @@ class RRCActionServer(Node):
 
         target_position = self.point_to_array(goal_handle.request.position)
 
-        curr_position = self.point_to_array(
-            self.controller.get_ee_position()
-        )
+        self.get_logger().info(f"Target position: {target_position}")
 
-        alpha = 0.5
-        ee_vel = alpha * (target_position - curr_position)
-        self.controller.set_ee_vel(ee_vel)
+        self.gain_publisher.publish(Float64(data=goal_handle.request.gain))
 
         for _ in range(self.max_iter):
-            curr_position = self.controller.get_ee_position()
+            curr_position = self.end_effector_pose.position
+
+            curr_position_arr = self.point_to_array(
+                self.end_effector_pose.position
+            )
+
+            alpha = 0.05
+            ee_vel = target_position - curr_position_arr
+            ee_vel = alpha * ee_vel / np.linalg.norm(ee_vel)
+
+            ee_twist = Twist()
+
+            ee_twist.linear.x = ee_vel[0]
+            ee_twist.linear.y = ee_vel[1]
+            ee_twist.linear.z = ee_vel[2]
+
+            self.twist_publisher.publish(ee_twist)
 
             feedback_msg.current_position = curr_position
             feedback_msg.partial_score = 0.0
-            feedback_msg.current_configuration = (
-                self.controller.get_joint_position()
-            )
+            feedback_msg.current_configuration = [
+                0.0
+                for _ in range(
+                    len(goal_handle.request.initial_configuration)
+                )
+            ]
 
             goal_handle.publish_feedback(feedback_msg)
 
@@ -67,10 +117,12 @@ class RRCActionServer(Node):
             dist = self.norm(curr_position, target_position)
 
             if dist < self.tol:
-                self.controller.set_ee_vel(np.zeros(3))
                 break
 
             sleep(0.01)
+
+        self.twist_publisher.publish(Twist())
+        self.gain_publisher.publish(Float64(data=0.0))
 
         goal_handle.succeed()
 
@@ -78,6 +130,8 @@ class RRCActionServer(Node):
 
         result.score = 0.0
         result.position_error = dist
+
+        self.get_logger().info("*** Goal execution completed ***")
 
         return result
 
@@ -91,26 +145,18 @@ class RRCActionServer(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    rclpy.init()
+    node = RRCActionServer()
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+
     try:
-        controller_node = ResolvedRateController()
-        action_node = RRCActionServer(
-            controller=controller_node, max_iter=5000, tol=0.1
-        )
-
-        executor = MultiThreadedExecutor(num_threads=4)
-
-        executor.add_node(action_node)
-        executor.add_node(controller_node)
-
-        try:
-            executor.spin()
-        finally:
-            executor.shutdown()
-            action_node.destroy_node()
-            controller_node.destroy_node()
-    finally:
-        rclpy.shutdown()
+        node.get_logger().info("Beginning client, shut down with CTRL-C")
+        executor.spin()
+    except KeyboardInterrupt:
+        node.get_logger().info("Keyboard interrupt, shutting down.\n")
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":
