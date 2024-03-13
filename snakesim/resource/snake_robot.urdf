@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<robot name="SnakeRobot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="base_link">
+    <visual>
+      <origin xyz="-0.01 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.0452 0.0247 0.0363"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="rotationalMotor1" type="continuous">
+    <parent link="base_link"/>
+    <child link="solid"/>
+    <axis xyz="0 1 -0.000004"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+  </joint>
+  <link name="solid">
+    <visual>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+<joint name="rotationalMotor2" type="continuous">
+    <parent link="solid"/>
+    <child link="solid_0"/>
+    <axis xyz="0 -1 0.000001"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0.06 0 0" rpy="-1.570795 0 0"/>
+  </joint>
+  <link name="solid_0">
+    <visual>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rotationalMotor3" type="continuous">
+    <parent link="solid_0"/>
+    <child link="solid_1"/>
+    <axis xyz="0 1 -0.000004"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0.06 0 0" rpy="1.5708 0 0"/>
+  </joint>
+  <link name="solid_1">
+    <visual>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rotationalMotor4" type="continuous">
+    <parent link="solid_1"/>
+    <child link="solid_2"/>
+    <axis xyz="0 -1 0.000001"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0.06 0 0" rpy="-1.570795 0 0"/>
+  </joint>
+  <link name="solid_2">
+    <visual>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rotationalMotor5" type="continuous">
+    <parent link="solid_2"/>
+    <child link="solid_3"/>
+    <axis xyz="0 1 -0.000004"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0.06 0 0" rpy="1.5708 0 0"/>
+  </joint>
+  <link name="solid_3">
+    <visual>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rotationalMotor6" type="continuous">
+    <parent link="solid_3"/>
+    <child link="solid_4"/>
+    <axis xyz="0 1 0.000001"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0.06 0 0" rpy="1.570795 0 0"/>
+  </joint>
+  <link name="solid_4">
+    <visual>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.048 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.03 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rotationalMotor7" type="continuous">
+    <parent link="solid_4"/>
+    <child link="solid_5"/>
+    <axis xyz="0 -1 0.000001"/>
+    <limit effort="10" velocity="10"/>
+    <origin xyz="0.06 0 0" rpy="-1.570795 0 0"/>
+  </joint>
+  <link name="solid_5">
+    <visual>
+      <origin xyz="0.016 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.025 0.045 0.025"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.016 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.025 0.045 0.025"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>

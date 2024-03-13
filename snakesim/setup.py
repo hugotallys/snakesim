@@ -11,18 +11,25 @@ data_files.append(
     )
 )
 data_files.append(
-    ("share/" + package_name + "/launch", ["launch/snake_launch.py"])
+    (
+        "share/" + package_name + "/launch",
+        ["launch/snake_launch.py", "launch/experiment_launch.py"],
+    )
 )
 data_files.append(
     ("share/" + package_name + "/worlds", ["worlds/snake.wbt"])
 )
 
-stl_files = ["servo.stl", "socket.stl", "servoSocket.stl"]
+mesh_files = [
+    "lx16a_servo.dae",
+    "lx16a_servo_socket.dae",
+    "lx16a_socket.dae",
+]
 
 data_files.append(
     (
         "share/" + package_name + "/protos/meshes",
-        [f"protos/meshes/{fname}" for fname in stl_files],
+        [f"protos/meshes/{fname}" for fname in mesh_files],
     )
 )
 data_files.append(
@@ -46,6 +53,7 @@ setup(
         "console_scripts": [
             "snake_driver = snakesim.snake_driver:main",
             "snake_trajectory = snakesim.trajectory_action_server:main",
+            "snake_trajectory_client = snakesim.trajectory_action_client:main",
         ],
     },
 )

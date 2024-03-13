@@ -7,8 +7,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.1782043803076314 0.10236598148425262 0.9786543846904988 2.004849641965549
-  position 0.6431602575742336 -0.7431155492067131 0.4944295913716134
+  orientation -0.06877674224240574 0.05158348713158842 0.9962975979002793 1.5311524349983592
+  position 0.24963832672180794 -0.8767609028621993 0.2957784831069103
 }
 TexturedBackground {
 }
@@ -19,19 +19,6 @@ RectangleArena {
 Robot {
   translation 0 0 0.2
   children [
-    Shape {
-      appearance PBRAppearance {
-        baseColor 0 0 1
-        roughness 1
-        metalness 0
-      }
-      geometry Mesh {
-        url [
-          "../protos/meshes/servo.stl"
-        ]
-      }
-      castShadows FALSE
-    }
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 0 1
@@ -40,7 +27,7 @@ Robot {
         PositionSensor {
           name "positionSensor1"
         }
-        RotationalMotor {
+        DEF MOTOR_1 RotationalMotor {
           name "rotationalMotor1"
         }
       ]
@@ -64,18 +51,10 @@ Robot {
               translation 0.06 0 0
               rotation -0.9999999999999999 0 0 1.5707953071795862
               children [
-                Shape {
-                  appearance PBRAppearance {
-                    baseColor 0 0.666667 0
-                    roughness 1
-                    metalness 0
-                  }
-                  geometry Mesh {
-                    url [
-                      "../protos/meshes/servoSocket.stl"
-                    ]
-                  }
-                  castShadows FALSE
+                CadShape {
+                  url [
+                    "../protos/meshes/lx16a_servo_socket.dae"
+                  ]
                 }
                 HingeJoint {
                   jointParameters HingeJointParameters {
@@ -93,6 +72,11 @@ Robot {
                     translation 0.06 0 0
                     rotation 1 0 0 1.5708
                     children [
+                      CadShape {
+                        url [
+                          "../protos/meshes/lx16a_servo_socket.dae"
+                        ]
+                      }
                       HingeJoint {
                         jointParameters HingeJointParameters {
                           axis 0 0 1
@@ -109,18 +93,10 @@ Robot {
                           translation 0.06 0 0
                           rotation -0.9999999999999999 0 0 1.5707953071795862
                           children [
-                            Shape {
-                              appearance PBRAppearance {
-                                baseColor 0 0.666667 0
-                                roughness 1
-                                metalness 0
-                              }
-                              geometry Mesh {
-                                url [
-                                  "../protos/meshes/servoSocket.stl"
-                                ]
-                              }
-                              castShadows FALSE
+                            CadShape {
+                              url [
+                                "../protos/meshes/lx16a_servo_socket.dae"
+                              ]
                             }
                             HingeJoint {
                               jointParameters HingeJointParameters {
@@ -138,6 +114,11 @@ Robot {
                                 translation 0.06 0 0
                                 rotation 1 0 0 1.5708
                                 children [
+                                  CadShape {
+                                    url [
+                                      "../protos/meshes/lx16a_servo_socket.dae"
+                                    ]
+                                  }
                                   HingeJoint {
                                     jointParameters HingeJointParameters {
                                       axis 0 0 1
@@ -154,6 +135,11 @@ Robot {
                                       translation 0.06 0 0
                                       rotation 0.9999999999999999 0 0 1.5707953071795862
                                       children [
+                                        CadShape {
+                                          url [
+                                            "../protos/meshes/lx16a_servo_socket.dae"
+                                          ]
+                                        }
                                         HingeJoint {
                                           jointParameters HingeJointParameters {
                                             axis 0 0 1
@@ -166,22 +152,14 @@ Robot {
                                               name "rotationalMotor7"
                                             }
                                           ]
-                                          endPoint DEF END_EFF Solid {
+                                          endPoint DEF END_EFFECTOR Solid {
                                             translation 0.026 0 0
                                             rotation -0.9999999999999999 0 0 1.5707953071795862
                                             children [
-                                              Shape {
-                                                appearance PBRAppearance {
-                                                  baseColor 1 0.666667 0
-                                                  roughness 1
-                                                  metalness 0
-                                                }
-                                                geometry Mesh {
-                                                  url [
-                                                    "../protos/meshes/socket.stl"
-                                                  ]
-                                                }
-                                                castShadows FALSE
+                                              CadShape {
+                                                url [
+                                                  "../protos/meshes/lx16a_socket.dae"
+                                                ]
                                               }
                                             ]
                                             boundingObject Pose {
@@ -196,19 +174,6 @@ Robot {
                                             }
                                           }
                                         }
-                                        Shape {
-                                          appearance PBRAppearance {
-                                            baseColor 0 0.666667 0
-                                            roughness 1
-                                            metalness 0
-                                          }
-                                          geometry Mesh {
-                                            url [
-                                              "../protos/meshes/servoSocket.stl"
-                                            ]
-                                          }
-                                          castShadows FALSE
-                                        }
                                       ]
                                       boundingObject DEF SERVO_BOUND Pose {
                                         translation -0.012 0 0
@@ -222,19 +187,6 @@ Robot {
                                       }
                                     }
                                   }
-                                  Shape {
-                                    appearance PBRAppearance {
-                                      baseColor 1 0 0
-                                      roughness 1
-                                      metalness 0
-                                    }
-                                    geometry Mesh {
-                                      url [
-                                        "../protos/meshes/servoSocket.stl"
-                                      ]
-                                    }
-                                    castShadows FALSE
-                                  }
                                 ]
                                 boundingObject USE SERVO_BOUND
                                 physics USE SERVO_PHYSICS
@@ -244,19 +196,6 @@ Robot {
                           boundingObject USE SERVO_BOUND
                           physics USE SERVO_PHYSICS
                         }
-                      }
-                      Shape {
-                        appearance PBRAppearance {
-                          baseColor 1 0 0
-                          roughness 1
-                          metalness 0
-                        }
-                        geometry Mesh {
-                          url [
-                            "../protos/meshes/servoSocket.stl"
-                          ]
-                        }
-                        castShadows FALSE
                       }
                     ]
                     boundingObject USE SERVO_BOUND
@@ -268,23 +207,20 @@ Robot {
               physics USE SERVO_PHYSICS
             }
           }
-          Shape {
-            appearance PBRAppearance {
-              baseColor 1 0 0
-              roughness 1
-              metalness 0
-            }
-            geometry Mesh {
-              url [
-                "../protos/meshes/servoSocket.stl"
-              ]
-            }
-            castShadows FALSE
+          CadShape {
+            url [
+              "../protos/meshes/lx16a_servo_socket.dae"
+            ]
           }
         ]
         boundingObject USE SERVO_BOUND
         physics USE SERVO_PHYSICS
       }
+    }
+    CadShape {
+      url [
+        "../protos/meshes/lx16a_servo.dae"
+      ]
     }
   ]
   name "Snake"
