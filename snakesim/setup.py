@@ -32,9 +32,18 @@ data_files.append(
         [f"protos/meshes/{fname}" for fname in mesh_files],
     )
 )
+
+data_files.append(
+    (
+        "share/" + package_name + "/protos/",
+        ["protos/Snake5R.proto"],
+    )
+)
+
 data_files.append(
     ("share/" + package_name + "/resource", ["resource/snake.urdf"])
 )
+
 data_files.append(("share/" + package_name, ["package.xml"]))
 
 setup(

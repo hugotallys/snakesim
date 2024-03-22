@@ -2,6 +2,7 @@ import os
 import launch
 
 from launch import LaunchDescription
+from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
@@ -37,6 +38,12 @@ def generate_launch_description():
                         )
                     ],
                 )
+            ),
+            Node(
+                package="snakesim",
+                executable="snake_trajectory",
+                name="snake_trajectory",
+                output="screen",
             ),
         ]
     )

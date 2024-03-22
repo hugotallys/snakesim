@@ -7,7 +7,7 @@ from .robot import Robot
 from snakesim_interfaces.srv import JointState
 from std_msgs.msg import Float64
 
-N_JOINTS = 7
+N_JOINTS = 5
 RAD_120 = np.deg2rad(120)
 
 
@@ -39,6 +39,10 @@ class SnakeDriver:
 
         self.target_twist = Twist()
 
+        self.__metric_publisher = self.__node.create_publisher(
+            Float64, "metric", 10
+        )
+
         self.__target_twist_subscriber = self.__node.create_subscription(
             Twist, "target_twist", self.twist_callback, 10
         )
@@ -55,28 +59,16 @@ class SnakeDriver:
 
         self.robot = Robot()
         self.gain = 0.0
+        self.metric_name = "manipulability"
 
     def get_sensor_device(self, name, sampling_period=16):
         sensor = self.__robot.getDevice(name)
         sensor.enable(sampling_period)
         return sensor
 
-    @staticmethod
-    def rotation_matrix_to_quaternion(r):
-
-        q_w = np.sqrt(1 + r[0, 0] + r[1, 1] + r[2, 2]) / 2.0
-        q_x = (r[2, 1] - r[1, 2]) / (4 * q_w)
-        q_y = (r[0, 2] - r[2, 0]) / (4 * q_w)
-        q_z = (r[1, 0] - r[0, 1]) / (4 * q_w)
-
-        return [q_x, q_y, q_z, q_w]
-
     def get_end_effector_pose(self):
 
         eff_pose = np.array(self.end_eff.getPose()).reshape(4, 4)
-        orientation = self.rotation_matrix_to_quaternion(
-            eff_pose[:-1, :-1]
-        )
 
         pose_msg = Pose()
 
@@ -84,10 +76,10 @@ class SnakeDriver:
         pose_msg.position.y = eff_pose[1, 3]
         pose_msg.position.z = eff_pose[2, 3]
 
-        pose_msg.orientation.x = orientation[0]
-        pose_msg.orientation.y = orientation[1]
-        pose_msg.orientation.z = orientation[2]
-        pose_msg.orientation.w = orientation[3]
+        pose_msg.orientation.x = 0.0
+        pose_msg.orientation.y = 0.0
+        pose_msg.orientation.z = 1.0
+        pose_msg.orientation.w = 0.0
 
         return pose_msg
 
@@ -127,6 +119,14 @@ class SnakeDriver:
             [self.__sensors[i].getValue() for i in range(N_JOINTS)]
         )
 
+        self.__metric_publisher.publish(
+            Float64(
+                data=self.robot.metric(
+                    read_joint_position, name=self.metric_name
+                )
+            )
+        )
+
         target_joint_position = self.update_joint_position(
             read_joint_position, dx, self.gain
         )
@@ -141,7 +141,9 @@ class SnakeDriver:
         J = self.robot.jacobian(q)
         JT = np.linalg.pinv(J)
 
-        q0dot = self.robot.q0dot(q, k0=k0)
+        q0dot = self.robot.q0dot(
+            q, k0=k0, metric=self.metric_name
+        ).reshape(-1, 1)
 
         dq = (JT @ dx).reshape(-1, 1) + (np.eye(N_JOINTS) - JT @ J) @ q0dot
 

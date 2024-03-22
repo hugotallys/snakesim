@@ -1,3 +1,4 @@
+import os
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
@@ -9,6 +10,14 @@ from geometry_msgs.msg import Point
 from action_msgs.msg import GoalStatus
 
 from time import sleep
+from datetime import datetime
+
+import pandas as pd
+import numpy as np
+
+
+N_EXP = 1
+RAD_120 = np.deg2rad(120)
 
 
 class TrajectoryActionClient(Node):
@@ -18,12 +27,17 @@ class TrajectoryActionClient(Node):
         self._action_client = ActionClient(self, MoveTo, "move_to")
         self.status = GoalStatus.STATUS_EXECUTING
 
-    def send_goal(self, point, initial_configuration):
+        self.curr_exp = 0
+        self.metric_data = [[] for _ in range(N_EXP)]
+        self.error_data = [[] for _ in range(N_EXP)]
+        self.metric_name = "manipulability"
+
+    def send_goal(self, point, gain, initial_configuration):
         self.status = GoalStatus.STATUS_EXECUTING
 
         goal_msg = MoveTo.Goal()
 
-        goal_msg.gain = 0.0
+        goal_msg.gain = gain
         goal_msg.position = point
         goal_msg.initial_configuration = initial_configuration
 
@@ -52,64 +66,103 @@ class TrajectoryActionClient(Node):
 
     def get_result_callback(self, future):
         result = future.result().result
+        self.error_data[self.curr_exp].append(result.position_error)
         self.get_logger().info("Result: {}".format(result.score))
+        self.get_logger().info("Error: {}".format(result.position_error))
+        self.curr_exp += 1
         self.status = GoalStatus.STATUS_SUCCEEDED
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
-        self.get_logger().info(
-            "Received feedback: {0}".format(feedback.partial_score)
+        self.metric_data[self.curr_exp].append(feedback.score)
+        self.error_data[self.curr_exp].append(feedback.position_error)
+
+    def save_result(self, filename):
+        max_len = max([len(v) for v in self.metric_data])
+
+        for i, md in enumerate(self.metric_data):
+            self.metric_data[i] = md + [None] * (max_len - len(md))
+
+        self.metric_data = np.array(self.metric_data).T
+
+        df = pd.DataFrame(
+            self.metric_data,
+            columns=[f"exp_{i}" for i in range(self.metric_data.shape[1])],
         )
+
+        df.to_csv(filename, index=False)
+
+        max_len = max([len(v) for v in self.error_data])
+
+        for i, md in enumerate(self.error_data):
+            self.error_data[i] = md + [None] * (max_len - len(md))
+
+        self.error_data = np.array(self.error_data).T
+
+        df = pd.DataFrame(
+            self.error_data,
+            columns=[f"exp_{i}" for i in range(self.error_data.shape[1])],
+        )
+
+        df.to_csv(filename.replace(".csv", "_error.csv"), index=False)
+
+        self.curr_exp = 0
+        self.metric_data = [[] for _ in range(N_EXP)]
+        self.error_data = [[] for _ in range(N_EXP)]
 
 
 def main(args=None):
     rclpy.init(args=args)
     action_client = TrajectoryActionClient()
 
-    inital_configurations = [
-        [
-            0.5,
-            0.5,
-            -0.5,
-            -0.5,
-            1.0,
-            -1.0,
-            0.0,
-        ],
-        [
-            -0.5,
-            -0.5,
-            0.5,
-            0.5,
-            -1.0,
-            1.0,
-            0.0,
-        ],
-        [
-            1.5,
-            0.5,
-            0.5,
-            0.5,
-            -1.0,
-            -1.0,
-            1.5,
-        ],
-    ]
+    q0 = np.zeros(5)
 
-    goals = [
-        Point(x=0.1, y=0.1, z=0.1),
-        Point(x=0.2, y=0.2, z=0.2),
-        Point(x=0.1, y=0.2, z=0.1),
-    ]
+    q0s = np.random.uniform(-0.1, 0.1, size=(N_EXP, 5))
 
-    for init_c, goal in zip(inital_configurations, goals):
+    for i in range(N_EXP):
+        q0s[i, :] = q0s[i, :] + q0
 
-        action_client.send_goal(goal, init_c)
+    gains = [0.0, 50.0, 100.0, 500.0]
 
-        while action_client.status != GoalStatus.STATUS_SUCCEEDED:
-            rclpy.spin_once(action_client)
+    now_timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
-        sleep(1)
+    save_dir = f"data/{now_timestamp}"
+
+    os.makedirs(save_dir, exist_ok=True)
+
+    for gain in gains:
+        goals = [
+            {
+                "point": Point(x=0.1, y=0.1, z=0.1),
+                "gain": gain,
+                "initial_configuration": q0,
+            }
+            for q0 in q0s
+        ]
+
+        for i, goal in enumerate(goals):
+
+            action_client.get_logger().info(
+                f"Sending goal {i+1} of {len(goals)}..."
+            )
+
+            action_client.send_goal(**goal)
+
+            while action_client.status != GoalStatus.STATUS_SUCCEEDED:
+                rclpy.spin_once(action_client)
+
+            sleep(1)
+
+        action_client.save_result(
+            os.path.join(save_dir, f"gain={gain}.csv")
+        )
+
+    with open(os.path.join(save_dir, "params.txt"), "a") as f:
+        f.write(f"metric={action_client.metric_name}\n")
+        f.write(f"n_exp={N_EXP}\n")
+        f.write(f"n_iter={len(action_client.metric_data[0])}\n")
+        f.write(f"point={goals[0]['point']}\n")
+        f.write(f"initial_configuration={q0}\n")
 
     action_client.get_logger().info("All done!")
     action_client.destroy_node()

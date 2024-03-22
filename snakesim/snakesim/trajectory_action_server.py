@@ -18,7 +18,7 @@ from std_msgs.msg import Float64
 
 class RRCActionServer(Node):
 
-    def __init__(self, max_iter=1500, tol=0.01):
+    def __init__(self, max_iter=5000, tol=0.01):
         super().__init__("go_to_point_action_server")
 
         self._action_server = ActionServer(
@@ -46,6 +46,14 @@ class RRCActionServer(Node):
             callback_group=service_client_cb_group,
         )
 
+        self.metric_subscriber = self.create_subscription(
+            Float64,
+            "metric",
+            self.metric_callback,
+            10,
+            callback_group=service_client_cb_group,
+        )
+
         self.twist_publisher = self.create_publisher(
             Twist, "target_twist", 10
         )
@@ -64,6 +72,9 @@ class RRCActionServer(Node):
 
     def end_effector_pose_callback(self, msg):
         self.end_effector_pose = msg
+
+    def metric_callback(self, msg):
+        self.metric = msg.data
 
     def execute_callback(self, goal_handle):
         self.get_logger().info("*** Executing goal ... ***")
@@ -102,7 +113,7 @@ class RRCActionServer(Node):
             self.twist_publisher.publish(ee_twist)
 
             feedback_msg.current_position = curr_position
-            feedback_msg.partial_score = 0.0
+            feedback_msg.score = self.metric
             feedback_msg.current_configuration = [
                 0.0
                 for _ in range(
@@ -116,6 +127,8 @@ class RRCActionServer(Node):
 
             dist = self.norm(curr_position, target_position)
 
+            feedback_msg.position_error = dist
+
             if dist < self.tol:
                 break
 
@@ -128,7 +141,7 @@ class RRCActionServer(Node):
 
         result = MoveTo.Result()
 
-        result.score = 0.0
+        result.score = self.metric
         result.position_error = dist
 
         self.get_logger().info("*** Goal execution completed ***")
