@@ -18,7 +18,7 @@ def generate_launch_description():
     )
 
     snake_driver = WebotsController(
-        robot_name="Snake",
+        robot_name="Snake5R",
         parameters=[
             {"robot_description": robot_desc_path},
         ],
@@ -38,6 +38,12 @@ def generate_launch_description():
                         )
                     ],
                 )
+            ),
+            Node(
+                package="snakesim",
+                executable="snake_controller",
+                name="snake_controller",
+                output="screen",
             ),
             Node(
                 package="snakesim",

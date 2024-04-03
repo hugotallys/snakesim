@@ -4,7 +4,7 @@
 # Snake 5 D.O.F robotic arm.
 
 PROTO Snake5R [
-    field SFVec3f       translation     0 0 0.2
+    field SFVec3f       translation     0 0 0
     field SFRotation    rotation        0 0 1 0
     field SFString      controller      "<extern>"
 ]
@@ -112,7 +112,7 @@ PROTO Snake5R [
                                         name "rotationalMotor5"
                                         }
                                     ]
-                                    endPoint DEF END_EFFECTOR Solid {
+                                    endPoint Solid {
                                         translation 0.026 0 0
                                         rotation 1 0 0 1.5708
                                         children [

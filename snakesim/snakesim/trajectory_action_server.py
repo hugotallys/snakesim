@@ -9,16 +9,17 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
 from snakesim_interfaces.action import MoveTo
-from snakesim_interfaces.srv import JointState
+from snakesim_interfaces.srv import SetJointState
+from snakesim_interfaces.msg import InputRRC, OutputRRC
 
-from geometry_msgs.msg import Twist, Pose
+from geometry_msgs.msg import Twist, Point
 
 from std_msgs.msg import Float64
 
 
 class RRCActionServer(Node):
 
-    def __init__(self, max_iter=5000, tol=0.01):
+    def __init__(self, max_iter=1000, tol=0.01):
         super().__init__("go_to_point_action_server")
 
         self._action_server = ActionServer(
@@ -33,54 +34,42 @@ class RRCActionServer(Node):
         service_client_cb_group = MutuallyExclusiveCallbackGroup()
 
         self.cli = self.create_client(
-            JointState,
-            "init_joint_state",
+            SetJointState,
+            "set_joint_state",
             callback_group=service_client_cb_group,
         )
 
-        self.end_effector_pose_subscriber = self.create_subscription(
-            Pose,
-            "end_effector_pose",
-            self.end_effector_pose_callback,
+        self.rrc_input_publisher = self.create_publisher(
+            InputRRC, "rrc_input", 10
+        )
+
+        self.rrc_output_subscriber = self.create_subscription(
+            OutputRRC,
+            "rrc_output",
+            self.rrc_output_callback,
             10,
             callback_group=service_client_cb_group,
         )
 
-        self.metric_subscriber = self.create_subscription(
-            Float64,
-            "metric",
-            self.metric_callback,
-            10,
-            callback_group=service_client_cb_group,
-        )
+        self.end_effector = Point()
 
-        self.twist_publisher = self.create_publisher(
-            Twist, "target_twist", 10
-        )
-
-        self.gain_publisher = self.create_publisher(
-            Float64, "target_gain", 10
-        )
-
-        self.end_effector_pose = Pose()
-
-    def send_request(self, joint_state):
-        request = JointState.Request()
-        request.joint_state = joint_state
+    def send_request(self, joint_position):
+        request = SetJointState.Request()
+        request.joint_states.position = [
+            float(joint) for joint in joint_position
+        ]
         response = self.cli.call(request)
         return response
 
-    def end_effector_pose_callback(self, msg):
-        self.end_effector_pose = msg
-
-    def metric_callback(self, msg):
-        self.metric = msg.data
+    def rrc_output_callback(self, msg):
+        self.score = msg.score
+        self.end_effector = msg.end_effector
 
     def execute_callback(self, goal_handle):
         self.get_logger().info("*** Executing goal ... ***")
 
         self.send_request(
-            joint_state=goal_handle.request.initial_configuration,
+            joint_position=goal_handle.request.initial_configuration,
         )
 
         sleep(1)
@@ -91,16 +80,12 @@ class RRCActionServer(Node):
 
         self.get_logger().info(f"Target position: {target_position}")
 
-        self.gain_publisher.publish(Float64(data=goal_handle.request.gain))
-
         for _ in range(self.max_iter):
-            curr_position = self.end_effector_pose.position
+            curr_position = self.end_effector
 
-            curr_position_arr = self.point_to_array(
-                self.end_effector_pose.position
-            )
+            curr_position_arr = self.point_to_array(self.end_effector)
 
-            alpha = 0.05
+            alpha = 0.1
             ee_vel = target_position - curr_position_arr
             ee_vel = alpha * ee_vel / np.linalg.norm(ee_vel)
 
@@ -110,10 +95,18 @@ class RRCActionServer(Node):
             ee_twist.linear.y = ee_vel[1]
             ee_twist.linear.z = ee_vel[2]
 
-            self.twist_publisher.publish(ee_twist)
+            msg = InputRRC()
+
+            msg.twist = ee_twist
+            msg.gain = goal_handle.request.gain
+            msg.metric_name = (
+                "joint_distance"  # goal_handle.request.metric_name
+            )
+
+            self.rrc_input_publisher.publish(msg)
 
             feedback_msg.current_position = curr_position
-            feedback_msg.score = self.metric
+            feedback_msg.score = self.score
             feedback_msg.current_configuration = [
                 0.0
                 for _ in range(
@@ -132,16 +125,17 @@ class RRCActionServer(Node):
             if dist < self.tol:
                 break
 
-            sleep(0.01)
+            sleep(0.1)
 
-        self.twist_publisher.publish(Twist())
-        self.gain_publisher.publish(Float64(data=0.0))
+        self.rrc_input_publisher.publish(
+            InputRRC(twist=Twist(), gain=0.0, metric_name="joint_distance")
+        )
 
         goal_handle.succeed()
 
         result = MoveTo.Result()
 
-        result.score = self.metric
+        result.score = self.score
         result.position_error = dist
 
         self.get_logger().info("*** Goal execution completed ***")

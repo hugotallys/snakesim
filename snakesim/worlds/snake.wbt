@@ -5,20 +5,15 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/Snake5R.proto"
 
-WorldInfo {
-}
+WorldInfo { }
 Viewpoint {
-  orientation -0.19421544363618962 0.08580308499066072 0.9771991568044273 2.19127898980916
-  position 0.5624800028958794 -0.5124104263690588 0.4758800303675427
+  orientation -0.1954532634940886 -0.05212089279051718 0.9793270313456224 3.524248300995084
+  position 0.9146656849593553 0.5421891640326294 0.5741520351859031
 }
-TexturedBackground {
-}
-TexturedBackgroundLight {
-}
-RectangleArena {
-}
+TexturedBackground { }
+TexturedBackgroundLight { }
+RectangleArena { }
 Snake5R {
-  translation 0 0 0.1
-  rotation 0 0 1 0
-  controller "<extern>"
+  translation 0 0 0.04
+  rotation 0 1 0 -1.570895307179586
 }

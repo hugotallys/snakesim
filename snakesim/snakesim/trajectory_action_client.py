@@ -30,7 +30,7 @@ class TrajectoryActionClient(Node):
         self.curr_exp = 0
         self.metric_data = [[] for _ in range(N_EXP)]
         self.error_data = [[] for _ in range(N_EXP)]
-        self.metric_name = "manipulability"
+        self.metric_name = "joint_distance"
 
     def send_goal(self, point, gain, initial_configuration):
         self.status = GoalStatus.STATUS_EXECUTING
@@ -115,12 +115,14 @@ def main(args=None):
     rclpy.init(args=args)
     action_client = TrajectoryActionClient()
 
-    q0 = np.zeros(5)
+    # q0 = np.random.uniform(-RAD_120, RAD_120, size=5)
 
-    q0s = np.random.uniform(-0.1, 0.1, size=(N_EXP, 5))
+    q0s = np.random.uniform(-RAD_120 / 6.0, RAD_120 / 6.0, size=(N_EXP, 5))
+    points = np.random.uniform(-0.1, 0.1, size=N_EXP)
+    points = [Point(x=0.1, y=0.1, z=0.1) for point in points]
 
-    for i in range(N_EXP):
-        q0s[i, :] = q0s[i, :] + q0
+    # for i in range(N_EXP):
+    #    q0s[i, :] = q0s[i, :] + q0
 
     gains = [0.0, 50.0, 100.0, 500.0]
 
@@ -133,11 +135,11 @@ def main(args=None):
     for gain in gains:
         goals = [
             {
-                "point": Point(x=0.1, y=0.1, z=0.1),
+                "point": points[i],
                 "gain": gain,
                 "initial_configuration": q0,
             }
-            for q0 in q0s
+            for i, q0 in enumerate(q0s)
         ]
 
         for i, goal in enumerate(goals):
@@ -162,7 +164,7 @@ def main(args=None):
         f.write(f"n_exp={N_EXP}\n")
         f.write(f"n_iter={len(action_client.metric_data[0])}\n")
         f.write(f"point={goals[0]['point']}\n")
-        f.write(f"initial_configuration={q0}\n")
+        # f.write(f"initial_configuration={q0}\n")
 
     action_client.get_logger().info("All done!")
     action_client.destroy_node()

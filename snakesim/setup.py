@@ -61,6 +61,7 @@ setup(
     entry_points={
         "console_scripts": [
             "snake_driver = snakesim.snake_driver:main",
+            "snake_controller = snakesim.robot_controller:main",
             "snake_trajectory = snakesim.trajectory_action_server:main",
             "snake_trajectory_client = snakesim.trajectory_action_client:main",
         ],

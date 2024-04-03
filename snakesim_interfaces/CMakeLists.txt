@@ -24,12 +24,15 @@ if(BUILD_TESTING)
 endif()
 
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/MoveTo.action"
-  "srv/JointState.srv"
-  DEPENDENCIES geometry_msgs
+  "srv/SetJointState.srv"
+  "msg/InputRRC.msg"
+  "msg/OutputRRC.msg"
+  DEPENDENCIES geometry_msgs sensor_msgs
 )
 
 ament_package()
