@@ -19,13 +19,15 @@ PROTO Snake5R [
             HingeJoint {
             jointParameters HingeJointParameters {
                 axis 0 0 1
+                minStop -1.5708
+                maxStop 1.5708
             }
             device [
                 PositionSensor {
-                name "positionSensor1"
+                    name "positionSensor1"
                 }
                 RotationalMotor {
-                name "rotationalMotor1"
+                    name "rotationalMotor1"
                 }
             ]
             endPoint Solid {
@@ -39,7 +41,9 @@ PROTO Snake5R [
                 }
                 HingeJoint {
                     jointParameters HingeJointParameters {
-                    axis 0 0 1
+                        axis 0 0 1
+                        minStop -1.5708
+                        maxStop 1.5708
                     }
                     device [
                     PositionSensor {
@@ -61,13 +65,15 @@ PROTO Snake5R [
                         HingeJoint {
                         jointParameters HingeJointParameters {
                             axis 0 0 1
+                            minStop -1.5708
+                            maxStop 1.5708
                         }
                         device [
                             PositionSensor {
-                            name "positionSensor3"
+                                name "positionSensor3"
                             }
                             RotationalMotor {
-                            name "rotationalMotor3"
+                                name "rotationalMotor3"
                             }
                         ]
                         endPoint Solid {
@@ -81,7 +87,9 @@ PROTO Snake5R [
                             }
                             HingeJoint {
                                 jointParameters HingeJointParameters {
-                                axis 0 0 1
+                                    axis 0 0 1
+                                    minStop -1.5708
+                                    maxStop 1.5708
                                 }
                                 device [
                                 PositionSensor {
@@ -103,6 +111,8 @@ PROTO Snake5R [
                                     HingeJoint {
                                     jointParameters HingeJointParameters {
                                         axis 0 0 1
+                                        minStop -1.5708
+                                        maxStop 1.5708
                                     }
                                     device [
                                         PositionSensor {

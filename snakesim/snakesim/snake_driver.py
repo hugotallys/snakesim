@@ -1,11 +1,9 @@
 import rclpy
-import numpy as np
 
 from sensor_msgs.msg import JointState
 from builtin_interfaces.msg import Time
 
 N_JOINTS = 5
-RAD_120 = np.deg2rad(120)
 
 
 class SnakeDriver:

@@ -16,23 +16,22 @@ import pandas as pd
 import numpy as np
 
 
-N_EXP = 1
-RAD_120 = np.deg2rad(120)
+RAD_90 = np.deg2rad(90)
 
 
 class TrajectoryActionClient(Node):
 
-    def __init__(self):
+    def __init__(self, metric_name):
         super().__init__("trajectory_action_client")
         self._action_client = ActionClient(self, MoveTo, "move_to")
         self.status = GoalStatus.STATUS_EXECUTING
 
-        self.curr_exp = 0
-        self.metric_data = [[] for _ in range(N_EXP)]
-        self.error_data = [[] for _ in range(N_EXP)]
-        self.metric_name = "joint_distance"
+        self.metric_data = []
+        self.error_data = []
+        self.joint_data = []
+        self.metric_name = metric_name
 
-    def send_goal(self, point, gain, initial_configuration):
+    def send_goal(self, point, gain, initial_configuration, metric_name):
         self.status = GoalStatus.STATUS_EXECUTING
 
         goal_msg = MoveTo.Goal()
@@ -40,6 +39,7 @@ class TrajectoryActionClient(Node):
         goal_msg.gain = gain
         goal_msg.position = point
         goal_msg.initial_configuration = initial_configuration
+        goal_msg.metric_name = metric_name
 
         self.get_logger().info("Waiting for action server...")
 
@@ -66,65 +66,42 @@ class TrajectoryActionClient(Node):
 
     def get_result_callback(self, future):
         result = future.result().result
-        self.error_data[self.curr_exp].append(result.position_error)
+        self.metric_data.append(result.score)
+        self.error_data.append(result.position_error)
+        self.joint_data.append(self.joint_data[-1])
         self.get_logger().info("Result: {}".format(result.score))
         self.get_logger().info("Error: {}".format(result.position_error))
-        self.curr_exp += 1
         self.status = GoalStatus.STATUS_SUCCEEDED
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
-        self.metric_data[self.curr_exp].append(feedback.score)
-        self.error_data[self.curr_exp].append(feedback.position_error)
+        self.metric_data.append(feedback.score)
+        self.error_data.append(feedback.position_error)
+        self.joint_data.append(feedback.current_configuration)
 
     def save_result(self, filename):
-        max_len = max([len(v) for v in self.metric_data])
+        data = {"metric": self.metric_data, "error": self.error_data}
 
-        for i, md in enumerate(self.metric_data):
-            self.metric_data[i] = md + [None] * (max_len - len(md))
+        for i in range(len(self.joint_data[0])):
+            data[f"joint_{i}"] = []
 
-        self.metric_data = np.array(self.metric_data).T
+        for jd in self.joint_data:
+            for i, j in enumerate(jd):
+                data[f"joint_{i}"].append(j)
 
-        df = pd.DataFrame(
-            self.metric_data,
-            columns=[f"exp_{i}" for i in range(self.metric_data.shape[1])],
-        )
-
+        df = pd.DataFrame(data)
         df.to_csv(filename, index=False)
 
-        max_len = max([len(v) for v in self.error_data])
-
-        for i, md in enumerate(self.error_data):
-            self.error_data[i] = md + [None] * (max_len - len(md))
-
-        self.error_data = np.array(self.error_data).T
-
-        df = pd.DataFrame(
-            self.error_data,
-            columns=[f"exp_{i}" for i in range(self.error_data.shape[1])],
-        )
-
-        df.to_csv(filename.replace(".csv", "_error.csv"), index=False)
-
-        self.curr_exp = 0
-        self.metric_data = [[] for _ in range(N_EXP)]
-        self.error_data = [[] for _ in range(N_EXP)]
+        self.metric_data = []
+        self.error_data = []
+        self.joint_data = []
 
 
 def main(args=None):
     rclpy.init(args=args)
-    action_client = TrajectoryActionClient()
+    action_client = TrajectoryActionClient("joint_distance")
 
-    # q0 = np.random.uniform(-RAD_120, RAD_120, size=5)
-
-    q0s = np.random.uniform(-RAD_120 / 6.0, RAD_120 / 6.0, size=(N_EXP, 5))
-    points = np.random.uniform(-0.1, 0.1, size=N_EXP)
-    points = [Point(x=0.1, y=0.1, z=0.1) for point in points]
-
-    # for i in range(N_EXP):
-    #    q0s[i, :] = q0s[i, :] + q0
-
-    gains = [0.0, 50.0, 100.0, 500.0]
+    np.random.seed(42)
 
     now_timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -132,39 +109,37 @@ def main(args=None):
 
     os.makedirs(save_dir, exist_ok=True)
 
-    for gain in gains:
-        goals = [
-            {
-                "point": points[i],
-                "gain": gain,
-                "initial_configuration": q0,
-            }
-            for i, q0 in enumerate(q0s)
-        ]
+    q0 = np.random.uniform(
+        -RAD_90 / 1.5, RAD_90 / 1.5, size=5
+    )  # -- joint_distance
+    # q0 = np.random.uniform(0, RAD_90 / 1.5, size=5)  # -- manipulability
 
-        for i, goal in enumerate(goals):
+    for gain in [0.0, 250.0, 500.0, 1000.0]:
 
-            action_client.get_logger().info(
-                f"Sending goal {i+1} of {len(goals)}..."
-            )
+        goal = {
+            "point":  # Point(
+            # x=0.1, y=0.1, z=0.2 ),  # -- manipulability
+            Point(x=0.0, y=0.0, z=0.3),  # -- joint_distance
+            "gain": gain,
+            "initial_configuration": q0,
+            "metric_name": "manipulability",
+        }
 
-            action_client.send_goal(**goal)
+        action_client.get_logger().info("Sending goal...")
 
-            while action_client.status != GoalStatus.STATUS_SUCCEEDED:
-                rclpy.spin_once(action_client)
+        action_client.send_goal(**goal)
 
-            sleep(1)
+        while action_client.status != GoalStatus.STATUS_SUCCEEDED:
+            rclpy.spin_once(action_client)
+
+        sleep(1)
 
         action_client.save_result(
-            os.path.join(save_dir, f"gain={gain}.csv")
+            os.path.join(
+                save_dir,
+                f"gain={gain}metric={action_client.metric_name}.csv",
+            )
         )
-
-    with open(os.path.join(save_dir, "params.txt"), "a") as f:
-        f.write(f"metric={action_client.metric_name}\n")
-        f.write(f"n_exp={N_EXP}\n")
-        f.write(f"n_iter={len(action_client.metric_data[0])}\n")
-        f.write(f"point={goals[0]['point']}\n")
-        # f.write(f"initial_configuration={q0}\n")
 
     action_client.get_logger().info("All done!")
     action_client.destroy_node()

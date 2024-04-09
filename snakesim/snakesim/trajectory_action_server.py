@@ -13,8 +13,7 @@ from snakesim_interfaces.srv import SetJointState
 from snakesim_interfaces.msg import InputRRC, OutputRRC
 
 from geometry_msgs.msg import Twist, Point
-
-from std_msgs.msg import Float64
+from sensor_msgs.msg import JointState
 
 
 class RRCActionServer(Node):
@@ -51,6 +50,14 @@ class RRCActionServer(Node):
             callback_group=service_client_cb_group,
         )
 
+        self.joint_states_subscriber = self.create_subscription(
+            JointState,
+            "joint_states",
+            self.joint_states_callback,
+            10,
+        )
+        self.joint_states_position = None
+
         self.end_effector = Point()
 
     def send_request(self, joint_position):
@@ -64,6 +71,9 @@ class RRCActionServer(Node):
     def rrc_output_callback(self, msg):
         self.score = msg.score
         self.end_effector = msg.end_effector
+
+    def joint_states_callback(self, msg):
+        self.joint_states_position = msg.position
 
     def execute_callback(self, goal_handle):
         self.get_logger().info("*** Executing goal ... ***")
@@ -99,36 +109,38 @@ class RRCActionServer(Node):
 
             msg.twist = ee_twist
             msg.gain = goal_handle.request.gain
-            msg.metric_name = (
-                "joint_distance"  # goal_handle.request.metric_name
-            )
+            msg.metric_name = goal_handle.request.metric_name
 
             self.rrc_input_publisher.publish(msg)
 
-            feedback_msg.current_position = curr_position
-            feedback_msg.score = self.score
-            feedback_msg.current_configuration = [
-                0.0
-                for _ in range(
-                    len(goal_handle.request.initial_configuration)
-                )
-            ]
-
-            goal_handle.publish_feedback(feedback_msg)
-
-            curr_position = self.point_to_array(curr_position)
-
-            dist = self.norm(curr_position, target_position)
+            dist = self.norm(curr_position_arr, target_position)
 
             feedback_msg.position_error = dist
+            feedback_msg.current_position = curr_position
+            feedback_msg.score = self.score
+
+            if self.joint_states_position is not None:
+                feedback_msg.current_configuration = (
+                    self.joint_states_position
+                )
+            else:
+                feedback_msg.current_configuration = (
+                    goal_handle.request.initial_configuration
+                )
+
+            goal_handle.publish_feedback(feedback_msg)
 
             if dist < self.tol:
                 break
 
-            sleep(0.1)
+            sleep(0.032)
 
         self.rrc_input_publisher.publish(
-            InputRRC(twist=Twist(), gain=0.0, metric_name="joint_distance")
+            InputRRC(
+                twist=Twist(),
+                gain=0.0,
+                metric_name=goal_handle.request.metric_name,
+            )
         )
 
         goal_handle.succeed()

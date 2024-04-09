@@ -8,7 +8,6 @@ from roboticstoolbox import DHRobot, RevoluteDH
 from sensor_msgs.msg import JointState
 from spatialmath import SE3
 
-from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist, Point
 from snakesim_interfaces.srv import SetJointState
 from snakesim_interfaces.msg import InputRRC, OutputRRC
@@ -17,7 +16,7 @@ from snakesim_interfaces.msg import InputRRC, OutputRRC
 class Robot:
     def __init__(self):
 
-        self.qlim = [-np.pi, np.pi]
+        self.qlim = [-np.pi * 0.5, np.pi * 0.5]
 
         self.T01 = self.dh_transform(
             d=0.06, a=0.0, alpha=np.pi / 2, theta=-np.pi / 2
