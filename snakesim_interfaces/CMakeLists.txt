@@ -28,7 +28,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "action/MoveTo.action"
+  "action/TrajectoryRRC.action"
   "srv/SetJointState.srv"
   "msg/InputRRC.msg"
   "msg/OutputRRC.msg"

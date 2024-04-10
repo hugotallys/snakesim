@@ -3,7 +3,7 @@ import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
 
-from snakesim_interfaces.action import MoveTo
+from snakesim_interfaces.action import TrajectoryRRC
 
 from geometry_msgs.msg import Point
 
@@ -16,6 +16,9 @@ import pandas as pd
 import numpy as np
 
 
+from .robot_controller import Robot
+
+
 RAD_90 = np.deg2rad(90)
 
 
@@ -23,22 +26,32 @@ class TrajectoryActionClient(Node):
 
     def __init__(self, metric_name):
         super().__init__("trajectory_action_client")
-        self._action_client = ActionClient(self, MoveTo, "move_to")
+        self._action_client = ActionClient(
+            self, TrajectoryRRC, "trajectory_rrc"
+        )
         self.status = GoalStatus.STATUS_EXECUTING
 
         self.metric_data = []
-        self.error_data = []
+        self.position_data = []
+        self.desired_position_data = []
         self.joint_data = []
         self.metric_name = metric_name
 
-    def send_goal(self, point, gain, initial_configuration, metric_name):
+    def send_goal(
+        self,
+        gain,
+        initial_configuration,
+        target_configuration,
+        metric_name,
+    ):
         self.status = GoalStatus.STATUS_EXECUTING
 
-        goal_msg = MoveTo.Goal()
+        goal_msg = TrajectoryRRC.Goal()
 
         goal_msg.gain = gain
-        goal_msg.position = point
         goal_msg.initial_configuration = initial_configuration
+        goal_msg.target_configuration = target_configuration
+
         goal_msg.metric_name = metric_name
 
         self.get_logger().info("Waiting for action server...")
@@ -67,20 +80,20 @@ class TrajectoryActionClient(Node):
     def get_result_callback(self, future):
         result = future.result().result
         self.metric_data.append(result.score)
-        self.error_data.append(result.position_error)
-        self.joint_data.append(self.joint_data[-1])
-        self.get_logger().info("Result: {}".format(result.score))
-        self.get_logger().info("Error: {}".format(result.position_error))
+        self.position_data.append(result.current_position)
+        self.desired_position_data.append(result.desired_position)
+        self.joint_data.append(result.current_configuration)
         self.status = GoalStatus.STATUS_SUCCEEDED
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
         self.metric_data.append(feedback.score)
-        self.error_data.append(feedback.position_error)
+        self.position_data.append(feedback.current_position)
+        self.desired_position_data.append(feedback.desired_position)
         self.joint_data.append(feedback.current_configuration)
 
     def save_result(self, filename):
-        data = {"metric": self.metric_data, "error": self.error_data}
+        data = {"metric": self.metric_data}
 
         for i in range(len(self.joint_data[0])):
             data[f"joint_{i}"] = []
@@ -89,11 +102,28 @@ class TrajectoryActionClient(Node):
             for i, j in enumerate(jd):
                 data[f"joint_{i}"].append(j)
 
+        for i, value in enumerate(["x", "y", "z"]):
+            data[value] = []
+
+        for pos in self.position_data:
+            data["x"].append(pos.x)
+            data["y"].append(pos.y)
+            data["z"].append(pos.z)
+
+        for i, value in enumerate(["x_", "y_", "z_"]):
+            data[value] = []
+
+        for pos in self.desired_position_data:
+            data["x_"].append(pos.x)
+            data["y_"].append(pos.y)
+            data["z_"].append(pos.z)
+
         df = pd.DataFrame(data)
         df.to_csv(filename, index=False)
 
         self.metric_data = []
-        self.error_data = []
+        self.position_data = []
+        self.desired_position_data = []
         self.joint_data = []
 
 
@@ -101,7 +131,7 @@ def main(args=None):
     rclpy.init(args=args)
     action_client = TrajectoryActionClient("joint_distance")
 
-    np.random.seed(42)
+    # np.random.seed(42)
 
     now_timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -109,20 +139,32 @@ def main(args=None):
 
     os.makedirs(save_dir, exist_ok=True)
 
-    q0 = np.random.uniform(
-        -RAD_90 / 1.5, RAD_90 / 1.5, size=5
-    )  # -- joint_distance
+    q0 = np.random.uniform(-RAD_90, RAD_90, size=5)  # -- joint_distance
+    qf = np.random.uniform(-RAD_90, RAD_90, size=5)  # -- joint_distance
+
+    # robot = Robot()
+
+    # target_point = robot.get_fkine_position(qf)
+    # target_point = Point(
+    #     x=target_point[0], y=target_point[1], z=target_point[2]
+    # )
+
     # q0 = np.random.uniform(0, RAD_90 / 1.5, size=5)  # -- manipulability
 
-    for gain in [0.0, 250.0, 500.0, 1000.0]:
+    for gain in [0.0, 100.0, 200.0, 400.0]:
+
+        # goal = {
+        #     "point": target_point,
+        #     "gain": gain,
+        #     "initial_configuration": q0,
+        #     "metric_name": action_client.metric_name,
+        # }
 
         goal = {
-            "point":  # Point(
-            # x=0.1, y=0.1, z=0.2 ),  # -- manipulability
-            Point(x=0.0, y=0.0, z=0.3),  # -- joint_distance
             "gain": gain,
             "initial_configuration": q0,
-            "metric_name": "manipulability",
+            "target_configuration": qf,
+            "metric_name": action_client.metric_name,
         }
 
         action_client.get_logger().info("Sending goal...")

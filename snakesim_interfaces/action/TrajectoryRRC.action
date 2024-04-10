@@ -1,0 +1,14 @@
+float64 gain
+float64[5] initial_configuration
+float64[5] target_configuration
+string metric_name
+---
+float64 score
+geometry_msgs/Point current_position
+geometry_msgs/Point desired_position
+float64[5] current_configuration
+---
+float64 score
+geometry_msgs/Point current_position
+geometry_msgs/Point desired_position
+float64[5] current_configuration

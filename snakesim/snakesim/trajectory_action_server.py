@@ -8,21 +8,26 @@ from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
-from snakesim_interfaces.action import MoveTo
+from snakesim_interfaces.action import TrajectoryRRC
 from snakesim_interfaces.srv import SetJointState
 from snakesim_interfaces.msg import InputRRC, OutputRRC
 
 from geometry_msgs.msg import Twist, Point
 from sensor_msgs.msg import JointState
 
+from .robot_controller import Robot
+
 
 class RRCActionServer(Node):
 
     def __init__(self, max_iter=1000, tol=0.01):
-        super().__init__("go_to_point_action_server")
+        super().__init__("trajectory_rrc_action_server")
 
         self._action_server = ActionServer(
-            self, MoveTo, "move_to", self.execute_callback
+            self,
+            TrajectoryRRC,
+            "trajectory_rrc",
+            self.execute_callback,
         )
 
         self.max_iter = max_iter
@@ -60,6 +65,8 @@ class RRCActionServer(Node):
 
         self.end_effector = Point()
 
+        self.robot = Robot()
+
     def send_request(self, joint_position):
         request = SetJointState.Request()
         request.joint_states.position = [
@@ -84,9 +91,11 @@ class RRCActionServer(Node):
 
         sleep(1)
 
-        feedback_msg = MoveTo.Feedback()
+        feedback_msg = TrajectoryRRC.Feedback()
 
-        target_position = self.point_to_array(goal_handle.request.position)
+        target_position = self.robot.get_fkine_position(
+            goal_handle.request.target_configuration
+        )
 
         self.get_logger().info(f"Target position: {target_position}")
 
@@ -115,9 +124,13 @@ class RRCActionServer(Node):
 
             dist = self.norm(curr_position_arr, target_position)
 
-            feedback_msg.position_error = dist
-            feedback_msg.current_position = curr_position
             feedback_msg.score = self.score
+            feedback_msg.current_position = curr_position
+            feedback_msg.desired_position = Point(
+                x=curr_position_arr[0] + ee_vel[0],
+                y=curr_position_arr[1] + ee_vel[1],
+                z=curr_position_arr[2] + ee_vel[2],
+            )
 
             if self.joint_states_position is not None:
                 feedback_msg.current_configuration = (
@@ -145,10 +158,16 @@ class RRCActionServer(Node):
 
         goal_handle.succeed()
 
-        result = MoveTo.Result()
+        result = TrajectoryRRC.Result()
 
         result.score = self.score
-        result.position_error = dist
+        result.current_position = curr_position
+        result.desired_position = Point(
+            x=curr_position_arr[0] + ee_vel[0],
+            y=curr_position_arr[1] + ee_vel[1],
+            z=curr_position_arr[2] + ee_vel[2],
+        )
+        result.current_configuration = self.joint_states_position
 
         self.get_logger().info("*** Goal execution completed ***")
 
