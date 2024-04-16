@@ -2,7 +2,7 @@ from time import sleep
 
 import numpy as np
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, GoalResponse
 from rclpy.node import Node
 
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
@@ -20,7 +20,7 @@ from .robot_controller import Robot
 
 class RRCActionServer(Node):
 
-    def __init__(self, max_iter=1000, tol=0.01):
+    def __init__(self, max_iter=5000, tol=0.01):
         super().__init__("trajectory_rrc_action_server")
 
         self._action_server = ActionServer(
@@ -29,6 +29,8 @@ class RRCActionServer(Node):
             "trajectory_rrc",
             self.execute_callback,
         )
+
+        self._action_server.register_goal_callback(self.goal_callback)
 
         self.max_iter = max_iter
         self.tol = tol
@@ -82,8 +84,28 @@ class RRCActionServer(Node):
     def joint_states_callback(self, msg):
         self.joint_states_position = msg.position
 
+    def goal_callback(self, goal_request):
+        min_height = 0.05
+        initial_position = self.robot.get_fkine_position(
+            goal_request.initial_configuration
+        )
+        target_position = self.robot.get_fkine_position(
+            goal_request.target_configuration
+        )
+
+        if (
+            initial_position[2] < min_height
+            or target_position[2] < min_height
+        ):
+            self.get_logger().info(
+                "*** Invalid goal request ***"
+                "\nEnd-effector might collide with floor."
+            )
+            return GoalResponse.REJECT
+        return GoalResponse.ACCEPT
+
     def execute_callback(self, goal_handle):
-        self.get_logger().info("*** Executing goal ... ***")
+        self.get_logger().info("*** Executing Goal. ***")
 
         self.send_request(
             joint_position=goal_handle.request.initial_configuration,
@@ -97,16 +119,12 @@ class RRCActionServer(Node):
             goal_handle.request.target_configuration
         )
 
-        self.get_logger().info(f"Target position: {target_position}")
-
         for _ in range(self.max_iter):
             curr_position = self.end_effector
 
             curr_position_arr = self.point_to_array(self.end_effector)
 
-            alpha = 0.1
             ee_vel = target_position - curr_position_arr
-            ee_vel = alpha * ee_vel / np.linalg.norm(ee_vel)
 
             ee_twist = Twist()
 
@@ -125,7 +143,7 @@ class RRCActionServer(Node):
             dist = self.norm(curr_position_arr, target_position)
 
             feedback_msg.score = self.score
-            feedback_msg.current_position = curr_position
+            feedback_msg.current_position = self.end_effector
             feedback_msg.desired_position = Point(
                 x=curr_position_arr[0] + ee_vel[0],
                 y=curr_position_arr[1] + ee_vel[1],

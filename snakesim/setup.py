@@ -64,6 +64,7 @@ setup(
             "snake_controller = snakesim.robot_controller:main",
             "snake_trajectory = snakesim.trajectory_action_server:main",
             "snake_trajectory_client = snakesim.trajectory_action_client:main",
+            "plot_results = snakesim.plot_results:main",
         ],
     },
 )

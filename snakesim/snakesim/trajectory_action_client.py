@@ -1,25 +1,15 @@
 import os
+from datetime import datetime
+from time import sleep
+
+import numpy as np
+import pandas as pd
 import rclpy
+from action_msgs.msg import GoalStatus
 from rclpy.action import ActionClient
 from rclpy.node import Node
 
 from snakesim_interfaces.action import TrajectoryRRC
-
-from geometry_msgs.msg import Point
-
-from action_msgs.msg import GoalStatus
-
-from time import sleep
-from datetime import datetime
-
-import pandas as pd
-import numpy as np
-
-
-from .robot_controller import Robot
-
-
-RAD_90 = np.deg2rad(90)
 
 
 class TrajectoryActionClient(Node):
@@ -68,11 +58,11 @@ class TrajectoryActionClient(Node):
 
     def goal_response_callback(self, future):
         goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info("Goal rejected :(")
-            return
 
-        self.get_logger().info("Goal accepted :)")
+        if not goal_handle.accepted:
+            self.get_logger().info("Goal rejected 😔")
+        else:
+            self.get_logger().info("Goal accepted 😊")
 
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
@@ -139,26 +129,12 @@ def main(args=None):
 
     os.makedirs(save_dir, exist_ok=True)
 
-    q0 = np.random.uniform(-RAD_90, RAD_90, size=5)  # -- joint_distance
-    qf = np.random.uniform(-RAD_90, RAD_90, size=5)  # -- joint_distance
+    max_angle = np.deg2rad(90)
 
-    # robot = Robot()
-
-    # target_point = robot.get_fkine_position(qf)
-    # target_point = Point(
-    #     x=target_point[0], y=target_point[1], z=target_point[2]
-    # )
-
-    # q0 = np.random.uniform(0, RAD_90 / 1.5, size=5)  # -- manipulability
+    q0 = np.random.uniform(-max_angle, max_angle, size=5)
+    qf = np.random.uniform(-max_angle, max_angle, size=5)
 
     for gain in [0.0, 100.0, 200.0, 400.0]:
-
-        # goal = {
-        #     "point": target_point,
-        #     "gain": gain,
-        #     "initial_configuration": q0,
-        #     "metric_name": action_client.metric_name,
-        # }
 
         goal = {
             "gain": gain,
