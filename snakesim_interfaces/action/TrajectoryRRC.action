@@ -1,4 +1,6 @@
 float64 gain
+float64 error_tol
+int64 max_iter
 float64[5] initial_configuration
 float64[5] target_configuration
 string metric_name

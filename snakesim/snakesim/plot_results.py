@@ -32,13 +32,20 @@ def compute_position_error(row, last_row):
     return np.linalg.norm(position - desired_posisition)
 
 
+def compute_score(df):
+    df = df.copy()
+    df["metric_cumsum"] = df["metric"].abs().cumsum() * 0.032
+    error_value = compute_position_error(df.iloc[-1], df.iloc[-1])
+    return df["metric_cumsum"].values[-1], error_value
+
+
 def plot_csv_files(directory, show=False):
     metric = None
     gains = []
     dfs = []
 
     for filename in os.listdir(directory):
-        if filename.endswith(".png"):
+        if filename.endswith(".pdf"):
             return
 
     for filename in os.listdir(directory):
@@ -48,24 +55,48 @@ def plot_csv_files(directory, show=False):
             gains.append(gain)
             dfs.append(df)
 
+    score_label = [f"k_0={gain}-metric={metric}-perror" for gain in gains]
+    scores = [compute_score(df) for df in dfs]
+
+    with open(f"{directory}/scores.txt", "w") as f:
+        for label, score in zip(score_label, scores):
+            f.write(f"{label}: {score}\n")
+
     if metric is not None:
+
+        # max_len = max([df.shape[0] for df in dfs])
+
+        # dfs = [df.reindex(range(max_len), method="ffill") for df in dfs]
+
+        # for df in dfs:
+        #     df["time"] = 0.032 * df.index
 
         # Plot #1 - Metric value over time for different gains
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 5))
 
         for df, gain in zip(dfs, gains):
+            label = "$k_0=" + gain.replace(".0", "") + "$"
             ax.plot(
                 df["time"].values[1:],
                 abs(df["metric"].values[1:]),
-                label=gain,
+                label=label,
             )
 
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("Metric")
-        ax.legend()
+        ax.set_xlabel("time (s)")
+        ax.set_ylabel(f"{metric.replace('_', ' ')}")
 
-        plt.savefig(f"{directory}/metric_{metric}.png")
+        ax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, 1.12),
+            fancybox=True,
+            shadow=True,
+            ncol=5,
+        )
+
+        ax.grid()
+
+        plt.savefig(f"{directory}/metric_{metric}.pdf", format="pdf")
 
         # Plot #2 - Position error over time for different gains
 
@@ -76,21 +107,33 @@ def plot_csv_files(directory, show=False):
                 lambda row: compute_position_error(row, df.iloc[-1]),
                 axis=1,
             )
+            label = "$k_0=" + gain.replace(".0", "") + "$"
             ax.plot(
-                df["time"].values, df["position_error"].values, label=gain
+                df["time"].values, df["position_error"].values, label=label
             )
             # set y limits
             ax.set_ylim(0, max(df["position_error"].values) + 0.1)
 
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("Position Error (m)")
-        ax.legend()
+        ax.set_xlabel("time (s)")
+        ax.set_ylabel("position error (m)")
 
-        plt.savefig(f"{directory}/position_error_{metric}.png")
+        ax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, 1.12),
+            fancybox=True,
+            shadow=True,
+            ncol=5,
+        )
+
+        ax.grid()
+
+        plt.savefig(
+            f"{directory}/position_error_{metric}.pdf", format="pdf"
+        )
 
         # Plot #3 - Position over time for different gains
 
-        fig, ax = plt.subplots(2, 2, figsize=(20, 10))
+        fig, ax = plt.subplots(2, 2, figsize=(10, 7))
 
         colors = ["red", "green", "blue"]
 
@@ -100,28 +143,39 @@ def plot_csv_files(directory, show=False):
                 ax[x, y].plot(
                     df["time"].values,
                     df[pos].values,
-                    label=pos,
+                    label=f"${pos}$",
                     color=color,
                 )
                 ax[x, y].plot(
                     df["time"].values,
                     df[f"{pos}_"].values,
-                    label=f"{pos}_",
+                    label=f"${pos}_f$",
                     linestyle="--",
                     color=color,
                 )
                 ax[x, y].set_ylim(-0.26, 0.36)
 
-            ax[x, y].set_title(f"Gain: {gain}")
-            ax[x, y].set_xlabel("Time (s)")
-            ax[x, y].set_ylabel("End Effector Position")
-            ax[x, y].legend(loc="lower left")
+            ax[x, y].set_title(f"$k_0={gain.replace('.0', '')}$")
+            ax[x, y].set_ylabel("position (m)")
 
-        plt.savefig(f"{directory}/position_{metric}.png")
+            if x == 1:
+                ax[x, y].set_xlabel("time (s)")
+                if y == 1:
+                    ax[x, y].legend(
+                        loc="upper center",
+                        bbox_to_anchor=(1.12, 1.35),
+                        fancybox=True,
+                        shadow=True,
+                        ncol=1,
+                    )
+
+            ax[x, y].grid()
+
+        plt.savefig(f"{directory}/position_{metric}.pdf", format="pdf")
 
         # Plot 4 - Joint states over time for different gains
 
-        fig, ax = plt.subplots(2, 2, figsize=(10, 10))
+        fig, ax = plt.subplots(2, 2, figsize=(10, 7))
 
         for i, (df, gain) in enumerate(zip(dfs, gains)):
             x, y = i // 2, i % 2
@@ -129,14 +183,26 @@ def plot_csv_files(directory, show=False):
                 ax[x, y].plot(
                     df["time"].values,
                     df[f"joint_{joint}"].values,
-                    label=f"joint_{joint}",
+                    label=f"$q_{joint}$",
                 )
 
-            ax[x, y].set_title(f"Gain: {gain}")
-            ax[x, y].set_xlabel("Time (s)")
+            ax[x, y].set_title(f"$k_0={gain.replace('.0', '')}$")
             ax[x, y].set_ylabel("Joint position")
 
-        plt.savefig(f"{directory}/joint_states_{metric}.png")
+            if x == 1:
+                ax[x, y].set_xlabel("time (s)")
+                if y == 1:
+                    ax[x, y].legend(
+                        loc="upper center",
+                        bbox_to_anchor=(1.12, 1.35),
+                        fancybox=True,
+                        shadow=True,
+                        ncol=1,
+                    )
+
+            ax[x, y].grid()
+
+        plt.savefig(f"{directory}/joint_states_{metric}.pdf", format="pdf")
 
     if show:
         plt.show()
@@ -152,7 +218,10 @@ def main():
     else:
         print("Reading all folders in data directory")
         for subdir in os.listdir(data_dir):
-            plot_csv_files(os.path.join(data_dir, subdir))
+            try:
+                plot_csv_files(os.path.join(data_dir, subdir))
+            except Exception as e:
+                print(f"Error processing {subdir}: {e}")
 
 
 if __name__ == "__main__":

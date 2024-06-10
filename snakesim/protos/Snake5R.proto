@@ -132,7 +132,7 @@ PROTO Snake5R [
                                             ]
                                         }
                                         ]
-                                        boundingObject DEF SERVO_BOUND Group {
+                                        boundingObject Group {
                                         children [
                                             Pose {
                                             children [
@@ -160,8 +160,8 @@ PROTO Snake5R [
                                         ]
                                         }
                                         physics Physics {
-                                        density -1
-                                        mass 0.03
+                                            density -1
+                                            mass 0.03
                                         }
                                     }
                                     }

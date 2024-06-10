@@ -21,19 +21,19 @@ from .robot_controller import Robot
 class RRCActionServer(Node):
 
     def __init__(self, max_iter=5000, tol=0.01):
-        super().__init__("trajectory_rrc_action_server")
+        super().__init__("trajectory_action_server")
 
         self._action_server = ActionServer(
             self,
             TrajectoryRRC,
-            "trajectory_rrc",
+            "trajectory_action",
             self.execute_callback,
         )
 
         self._action_server.register_goal_callback(self.goal_callback)
 
-        self.max_iter = max_iter
-        self.tol = tol
+        self.max_iter = None  # max_iter
+        self.tol = None  # tol
 
         self.get_logger().info("RRC Action Server has been started.")
 
@@ -92,6 +92,9 @@ class RRCActionServer(Node):
         target_position = self.robot.get_fkine_position(
             goal_request.target_configuration
         )
+
+        self.tol = goal_request.error_tol
+        self.max_iter = goal_request.max_iter
 
         if (
             initial_position[2] < min_height
@@ -161,7 +164,7 @@ class RRCActionServer(Node):
 
             goal_handle.publish_feedback(feedback_msg)
 
-            if dist < self.tol:
+            if (dist < self.tol) and self.tol > 0.0:
                 break
 
             sleep(0.032)

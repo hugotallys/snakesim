@@ -11,13 +11,19 @@ from rclpy.node import Node
 
 from snakesim_interfaces.action import TrajectoryRRC
 
+from .experiment import ExperimentType
+
 
 class TrajectoryActionClient(Node):
 
-    def __init__(self, metric_name):
+    def __init__(
+        self,
+        metric_name="joint_distance",
+        experiment_type: ExperimentType = ExperimentType.FOLLOW_TRAJECTORY,
+    ):
         super().__init__("trajectory_action_client")
         self._action_client = ActionClient(
-            self, TrajectoryRRC, "trajectory_rrc"
+            self, TrajectoryRRC, "trajectory_action"
         )
         self.status = GoalStatus.STATUS_EXECUTING
 
@@ -25,6 +31,10 @@ class TrajectoryActionClient(Node):
         self.position_data = []
         self.desired_position_data = []
         self.joint_data = []
+        self.metric_name = metric_name
+        self.experiment_type = experiment_type
+
+    def set_metric_name(self, metric_name):
         self.metric_name = metric_name
 
     def send_goal(
@@ -39,10 +49,18 @@ class TrajectoryActionClient(Node):
         goal_msg = TrajectoryRRC.Goal()
 
         goal_msg.gain = gain
-        goal_msg.initial_configuration = initial_configuration
-        goal_msg.target_configuration = target_configuration
-
         goal_msg.metric_name = metric_name
+
+        if self.experiment_type == ExperimentType.FOLLOW_TRAJECTORY:
+            goal_msg.error_tol = 0.01
+            goal_msg.max_iter = 1000
+            goal_msg.initial_configuration = initial_configuration
+            goal_msg.target_configuration = target_configuration
+        elif self.experiment_type == ExperimentType.NULL_SPACE:
+            goal_msg.error_tol = -1.0
+            goal_msg.max_iter = 500
+            goal_msg.initial_configuration = initial_configuration
+            goal_msg.target_configuration = initial_configuration
 
         self.get_logger().info("Waiting for action server...")
 
@@ -119,9 +137,32 @@ class TrajectoryActionClient(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    action_client = TrajectoryActionClient("joint_distance")
+    action_client = TrajectoryActionClient()
 
-    # np.random.seed(42)
+    action_client.declare_parameter("metric_name", "joint_distance")
+    metric_name = (
+        action_client.get_parameter("metric_name")
+        .get_parameter_value()
+        .string_value
+    )
+    action_client.set_metric_name(metric_name)
+
+    if metric_name == "joint_distance":
+        gains = [0.0, 200.0, 400.0, 800.0]
+    elif metric_name == "manipulability":
+        gains = [0.0, 2000.0, 4000.0, 8000.0]
+
+    action_client.declare_parameter("experiment_type", "follow_trajectory")
+    experiment_type = (
+        action_client.get_parameter("experiment_type")
+        .get_parameter_value()
+        .string_value
+    )
+
+    if experiment_type == "follow_trajectory":
+        action_client.experiment_type = ExperimentType.FOLLOW_TRAJECTORY
+    elif experiment_type == "null_space":
+        action_client.experiment_type = ExperimentType.NULL_SPACE
 
     now_timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -129,12 +170,14 @@ def main(args=None):
 
     os.makedirs(save_dir, exist_ok=True)
 
+    # np.random.seed(12345)
+
     max_angle = np.deg2rad(90)
 
     q0 = np.random.uniform(-max_angle, max_angle, size=5)
     qf = np.random.uniform(-max_angle, max_angle, size=5)
 
-    for gain in [0.0, 100.0, 200.0, 400.0]:
+    for gain in gains:
 
         goal = {
             "gain": gain,
