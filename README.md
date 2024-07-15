@@ -1,5 +1,7 @@
 # SnakeSim
 
+![](snakesim/worlds/.snake.jpg)
+
 SnakeSim provides a ROS2 and Webots simulation environment of a simple redundant robotic arm performing cartesian motion in a 3D workspace.
 
 ## Prerequisites
@@ -43,66 +45,45 @@ More information on how to setup a Webots simulation with ROS can be found in th
 
 ### 5. Setup Python Environment
 
-Create a virtual environment and install the necessary Python packages.
+Create a virtual environment and install the necessary Python packages:
 
-sh
-Copy code
+```sh
 python3 -m venv ~/ros2_ws/venv
 source ~/ros2_ws/venv/bin/activate
-8.2. Ensure Colcon Ignores the Virtual Environment
-sh
-Copy code
+```
+
+You must ensure Colcon ignores the python venv
+
+```sh
 touch ~/ros2_ws/venv/COLCON_IGNORE
-8.3. Install Python Requirements
-Create a requirements.txt file in the root of the repository with the following content:
+```
 
-txt
-Copy code
-matplotlib
-pandas
-numpy
-roboticstoolbox-python
-Install the requirements:
+Install the python packages with pip:
 
-sh
-Copy code
+```sh
 pip install -r ~/ros2_ws/src/snakesim/requirements.txt
-Running the Simulation
-Open a terminal and source the ROS2 workspace:
+```
 
-sh
-Copy code
+## Running the Simulation
+
+Open a terminal source the workspace. We first instatiate the simulator with the action server node:
+
+```sh
 cd ~/ros2_ws
 source install/local_setup.zsh
-Launch Webots:
-
-sh
-Copy code
-webots
-In another terminal, activate the Python virtual environment:
-
-sh
-Copy code
-source ~/ros2_ws/venv/bin/activate
-Run the SnakeSim ROS2 nodes:
-
-sh
-Copy code
-ros2 launch snakesim snake_sim.launch.py
-Additional Resources
-ROS2 Documentation
-Webots Documentation
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-Acknowledgments
-The ROS2 and Webots development communities for their tools and libraries.
-Contributors to the SnakeSim project.
-vbnet
-Copy code
-
-Replace `<repository-url>` with the actual URL of the SnakeSim repository. This README file provides a step-by-step guide to setting up and running the SnakeSim project, ensuring that users have all the necessary information to get started.
-
+ros2 launch snakesim snake_launch.py
 ```
 
+To start the trajectory execution start the action client in another tab:
+
+```sh
+cd ~/ros2_ws
+source install/local_setup.zsh
+ros2 run snakesim snake_trajectory_client --ros-args -p metric_name:=<metric_name> -p experiment_type:=<experiment_type>
 ```
+
+Where `<metric_name>` is the name of the metric to be optimized and `<experiment_type>` is the type of experiment to be executed. The values
+that can be chosen are:
+
+- `metric_name`: `joint_distance`, `manipulability`.
+- `experiment_type`: `null_space`, `trajectory`.
