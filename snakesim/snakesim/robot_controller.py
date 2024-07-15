@@ -34,7 +34,7 @@ class Robot:
                 RevoluteDH(d=0, a=0.06, alpha=-np.pi / 2, qlim=self.qlim),
                 RevoluteDH(d=0, a=0.06, alpha=np.pi / 2, qlim=self.qlim),
                 RevoluteDH(d=0, a=0.06, alpha=-np.pi / 2, qlim=self.qlim),
-                RevoluteDH(d=0, a=0.02, alpha=np.pi / 2, qlim=self.qlim),
+                RevoluteDH(d=0, a=0.01, alpha=np.pi / 2, qlim=self.qlim),
             ],
             name="Snake",
         )

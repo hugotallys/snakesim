@@ -172,10 +172,23 @@ def main(args=None):
 
     # np.random.seed(12345)
 
-    max_angle = np.deg2rad(90)
+    # max_angle = np.deg2rad(90)
 
-    q0 = np.random.uniform(-max_angle, max_angle, size=5)
-    qf = np.random.uniform(-max_angle, max_angle, size=5)
+    # Cenário 1
+
+    # Distância para as juntas
+    # q0 = np.array([-0.9373, -0.8342, -1.3470, 1.1360, 0.8398])
+    # qf = np.array([-0.9373, -0.8342, -1.3470, 1.1360, 0.8398])
+
+    # Cenário 2
+
+    # Manipulabilidade
+    # q0 = np.array([-0.2933, 0.4037, 0.6431, -0.5218, 0.0066])
+    # qf = np.array([-0.0626, 0.0091, 1.2826, -0.8973, 0.1085])
+
+    # Distância para as juntas
+    q0 = np.array([-0.6554, 0.9844, 0.4226, -1.4033, -1.3221])
+    qf = np.array([1.0634, 1.0432, 0.7827, -0.7655, -1.2233])
 
     for gain in gains:
 

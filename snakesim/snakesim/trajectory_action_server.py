@@ -93,8 +93,18 @@ class RRCActionServer(Node):
             goal_request.target_configuration
         )
 
+        self.get_logger().info(
+            f"Received goal request with initial position: {initial_position}"
+            f"\nand target position: {target_position}"
+        )
+
         self.tol = goal_request.error_tol
         self.max_iter = goal_request.max_iter
+
+        self.get_logger().info(
+            f"Received goal request with tolerance: {self.tol} "
+            f"\nand max iterations: {self.max_iter}"
+        )
 
         if (
             initial_position[2] < min_height
@@ -128,6 +138,10 @@ class RRCActionServer(Node):
             curr_position_arr = self.point_to_array(self.end_effector)
 
             ee_vel = target_position - curr_position_arr
+
+            # min_vel = 0.1
+            # if np.linalg.norm(ee_vel) < min_vel:
+            #     ee_vel = min_vel * (ee_vel / np.linalg.norm(ee_vel))
 
             ee_twist = Twist()
 
