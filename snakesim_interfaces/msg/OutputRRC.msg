@@ -1,0 +1,2 @@
+geometry_msgs/Point end_effector
+float64 score

@@ -1,0 +1,35 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/Snake5R.proto"
+
+WorldInfo { }
+Viewpoint {
+  orientation -0.1954532634940886 -0.05212089279051718 0.9793270313456224 3.524248300995084
+  position 0.9146656849593553 0.5421891640326294 0.5741520351859031
+}
+TexturedBackground { }
+TexturedBackgroundLight { }
+RectangleArena { }
+Snake5R {
+  translation 0 0 0.04
+  rotation 0 1 0 -1.570895307179586
+}
+# Solid {
+#   translation  0.025453   -0.18985488  0.09357634
+#   children [
+#     Shape {
+#       appearance PBRAppearance {
+#         baseColor 0 1 0
+#         roughness 1
+#         metalness 0
+#       }
+#       geometry Sphere {
+#         radius 0.01
+#       }
+#     }
+#   ]
+#   name "Target Point"
+# }

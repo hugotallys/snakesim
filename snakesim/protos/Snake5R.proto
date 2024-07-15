@@ -1,0 +1,233 @@
+#VRML_SIM R2023b utf8
+# license: Apache License 2.0
+# license url: http://www.apache.org/licenses/LICENSE-2.0
+# Snake 5 D.O.F robotic arm.
+
+PROTO Snake5R [
+    field SFVec3f       translation     0 0 0
+    field SFRotation    rotation        0 0 1 0
+    field SFString      controller      "<extern>"
+]
+{
+    Robot {
+        name "Snake5R"
+        controller IS controller
+        supervisor TRUE
+        translation IS translation
+        rotation IS rotation
+        children [
+            HingeJoint {
+            jointParameters HingeJointParameters {
+                axis 0 0 1
+                minStop -1.5708
+                maxStop 1.5708
+            }
+            device [
+                PositionSensor {
+                    name "positionSensor1"
+                }
+                RotationalMotor {
+                    name "rotationalMotor1"
+                }
+            ]
+            endPoint Solid {
+                translation 0.06 0 0
+                rotation 1 0 0 1.5708
+                children [
+                CadShape {
+                    url [
+                    "./meshes/lx16a_servo_socket.dae"
+                    ]
+                }
+                HingeJoint {
+                    jointParameters HingeJointParameters {
+                        axis 0 0 1
+                        minStop -1.5708
+                        maxStop 1.5708
+                    }
+                    device [
+                    PositionSensor {
+                        name "positionSensor2"
+                    }
+                    RotationalMotor {
+                        name "rotationalMotor2"
+                    }
+                    ]
+                    endPoint Solid {
+                    translation 0.06 0 0
+                    rotation -0.9999999999999999 0 0 1.5707953071795862
+                    children [
+                        CadShape {
+                        url [
+                            "./meshes/lx16a_servo_socket.dae"
+                        ]
+                        }
+                        HingeJoint {
+                        jointParameters HingeJointParameters {
+                            axis 0 0 1
+                            minStop -1.5708
+                            maxStop 1.5708
+                        }
+                        device [
+                            PositionSensor {
+                                name "positionSensor3"
+                            }
+                            RotationalMotor {
+                                name "rotationalMotor3"
+                            }
+                        ]
+                        endPoint Solid {
+                            translation 0.06 0 0
+                            rotation 1 0 0 1.5708
+                            children [
+                            CadShape {
+                                url [
+                                "./meshes/lx16a_servo_socket.dae"
+                                ]
+                            }
+                            HingeJoint {
+                                jointParameters HingeJointParameters {
+                                    axis 0 0 1
+                                    minStop -1.5708
+                                    maxStop 1.5708
+                                }
+                                device [
+                                PositionSensor {
+                                    name "positionSensor4"
+                                }
+                                RotationalMotor {
+                                    name "rotationalMotor4"
+                                }
+                                ]
+                                endPoint Solid {
+                                translation 0.06 0 0
+                                rotation 1 0 0 -1.5707953071795862
+                                children [
+                                    CadShape {
+                                    url [
+                                        "./meshes/lx16a_servo_socket.dae"
+                                    ]
+                                    }
+                                    HingeJoint {
+                                    jointParameters HingeJointParameters {
+                                        axis 0 0 1
+                                        minStop -1.5708
+                                        maxStop 1.5708
+                                    }
+                                    device [
+                                        PositionSensor {
+                                        name "positionSensor5"
+                                        }
+                                        RotationalMotor {
+                                        name "rotationalMotor5"
+                                        }
+                                    ]
+                                    endPoint Solid {
+                                        translation 0.026 0 0
+                                        rotation 1 0 0 1.5708
+                                        children [
+                                        CadShape {
+                                            url [
+                                            "./meshes/lx16a_socket.dae"
+                                            ]
+                                        }
+                                        ]
+                                        boundingObject Group {
+                                        children [
+                                            Pose {
+                                            children [
+                                                Box {
+                                                size 0.01 0.046 0.042
+                                                }
+                                            ]
+                                            }
+                                            Pose {
+                                            translation -0.016 -0.02 0
+                                            children [
+                                                Box {
+                                                size 0.022 0.007 0.02
+                                                }
+                                            ]
+                                            }
+                                            Pose {
+                                            translation -0.016 0.02 0
+                                            children [
+                                                Box {
+                                                size 0.022 0.007 0.02
+                                                }
+                                            ]
+                                            }
+                                        ]
+                                        }
+                                        physics Physics {
+                                            density -1
+                                            mass 0.03
+                                        }
+                                    }
+                                    }
+                                ]
+                                boundingObject DEF SERVO_BOUND Group {
+                                    children [
+                                    Pose {
+                                        translation -0.013 0 0
+                                        children [
+                                        Box {
+                                            size 0.0451 0.0247 0.034
+                                        }
+                                        ]
+                                    }
+                                    Pose {
+                                        translation -0.04 0 0
+                                        children [
+                                        Box {
+                                            size 0.01 0.046 0.042
+                                        }
+                                        ]
+                                    }
+                                    Pose {
+                                        translation -0.056 -0.02 0
+                                        children [
+                                        Box {
+                                            size 0.022 0.007 0.02
+                                        }
+                                        ]
+                                    }
+                                    Pose {
+                                        translation -0.056 0.02 0
+                                        children [
+                                        Box {
+                                            size 0.022 0.007 0.02
+                                        }
+                                        ]
+                                    }
+                                    ]
+                                }
+                                physics DEF SERVO_PHYSICS Physics {
+                                    density -1
+                                    mass 0.08
+                                }
+                                }
+                            }
+                            ]
+                            boundingObject USE SERVO_BOUND
+                            physics USE SERVO_PHYSICS
+                        }
+                        }
+                    ]
+                    boundingObject USE SERVO_BOUND
+                    physics USE SERVO_PHYSICS
+                    }
+                }
+                ]
+                boundingObject USE SERVO_BOUND
+                physics USE SERVO_PHYSICS
+            }
+            }
+            CadShape {
+            url [
+                "./meshes/lx16a_servo.dae"
+            ]
+            }
+        ]
+    }
+}
