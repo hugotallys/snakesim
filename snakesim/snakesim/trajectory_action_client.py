@@ -52,8 +52,8 @@ class TrajectoryActionClient(Node):
         goal_msg.metric_name = metric_name
 
         if self.experiment_type == ExperimentType.FOLLOW_TRAJECTORY:
-            goal_msg.error_tol = 0.01
-            goal_msg.max_iter = 1000
+            goal_msg.error_tol = 0.005
+            goal_msg.max_iter = 5000
             goal_msg.initial_configuration = initial_configuration
             goal_msg.target_configuration = target_configuration
         elif self.experiment_type == ExperimentType.NULL_SPACE:

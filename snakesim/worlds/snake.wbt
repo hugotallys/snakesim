@@ -17,19 +17,19 @@ Snake5R {
   translation 0 0 0.04
   rotation 0 1 0 -1.570895307179586
 }
-# Solid {
-#   translation  0.025453   -0.18985488  0.09357634
-#   children [
-#     Shape {
-#       appearance PBRAppearance {
-#         baseColor 0 1 0
-#         roughness 1
-#         metalness 0
-#       }
-#       geometry Sphere {
-#         radius 0.01
-#       }
-#     }
-#   ]
-#   name "Target Point"
-# }
+Solid {
+  translation -0.1062   0.18340  0.0702
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 1 0
+        roughness 1
+        metalness 0
+      }
+      geometry Sphere {
+        radius 0.01
+      }
+    }
+  ]
+  name "Target Point"
+}

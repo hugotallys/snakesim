@@ -19,7 +19,7 @@ class Robot:
         self.qlim = [-np.pi * 0.5, np.pi * 0.5]
 
         self.T01 = self.dh_transform(
-            d=0.06, a=0.0, alpha=np.pi / 2, theta=-np.pi / 2
+            d=0.04, a=0.0, alpha=np.pi / 2, theta=-np.pi / 2
         )
 
         self.robot = DHRobot(
@@ -34,7 +34,7 @@ class Robot:
                 RevoluteDH(d=0, a=0.06, alpha=-np.pi / 2, qlim=self.qlim),
                 RevoluteDH(d=0, a=0.06, alpha=np.pi / 2, qlim=self.qlim),
                 RevoluteDH(d=0, a=0.06, alpha=-np.pi / 2, qlim=self.qlim),
-                RevoluteDH(d=0, a=0.01, alpha=np.pi / 2, qlim=self.qlim),
+                RevoluteDH(d=0, a=0.02, alpha=np.pi / 2, qlim=self.qlim),
             ],
             name="Snake",
         )

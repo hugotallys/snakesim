@@ -117,7 +117,7 @@ class RRCActionServer(Node):
             return GoalResponse.REJECT
         return GoalResponse.ACCEPT
 
-    def execute_callback(self, goal_handle):
+    def execute_callback(self, goal_handle, min_vel=0.1):
         self.get_logger().info("*** Executing Goal. ***")
 
         self.send_request(
@@ -139,9 +139,8 @@ class RRCActionServer(Node):
 
             ee_vel = target_position - curr_position_arr
 
-            # min_vel = 0.1
-            # if np.linalg.norm(ee_vel) < min_vel:
-            #     ee_vel = min_vel * (ee_vel / np.linalg.norm(ee_vel))
+            if np.linalg.norm(ee_vel) < min_vel:
+                ee_vel = min_vel * (ee_vel / np.linalg.norm(ee_vel))
 
             ee_twist = Twist()
 
